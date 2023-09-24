@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "torpedo-d5426": {
+      "hosting": {
+        "app": [
+          "torpedo-d5426"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "torpedo-d5426"
+  }
+}

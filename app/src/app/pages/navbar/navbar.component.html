@@ -1,0 +1,10 @@
+<mat-toolbar color="primary">
+    <span fxHide.gt-xs><button mat-icon-button aria-label="Side bar button" #sidenavButton (click)="toggleSidenav()"><mat-icon>menu</mat-icon></button></span>
+    <span><button #notes fxLayout mat-flat-button color="accent" routerLink="/" *ngIf="!isUserLoggedIn()" style="margin-left: 1em;">Torpedo</button></span>
+    <div fxHide.xs class="navbar-buttons">
+        <span class="navbar-spacer"></span>
+        <span><button mat-button routerLink="/login" *ngIf="!isUserLoggedIn()">Login</button></span>
+        <span><button mat-button routerLink="/register" *ngIf="!isUserLoggedIn()">Register</button></span>
+        <span><button mat-button *ngIf="isUserLoggedIn()" (click)="logout()">Logout</button></span>
+    </div>
+</mat-toolbar>

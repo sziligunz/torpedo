@@ -6,6 +6,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { NavbarComponent } from './pages/navbar/navbar.component';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,14 +22,15 @@ import { environment } from '../environments/environment';
 
 // ANGULAR
 import { AngularFireModule } from "@angular/fire//compat";
-import { provideAnalytics, getAnalytics, ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
+import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
@@ -45,13 +48,12 @@ import { provideMessaging, getMessaging } from '@angular/fire/messaging';
     MatDialogModule,
     MatCardModule,
     AngularFireModule.initializeApp(environment.firebase),
-    provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
+    provideAnalytics(() => getAnalytics()),
     provideFirestore(() => getFirestore()),
     provideMessaging(() => getMessaging())
   ],
   providers: [
-    ScreenTrackingService,UserTrackingService
   ],
   bootstrap: [AppComponent]
 })

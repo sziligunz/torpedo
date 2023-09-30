@@ -1,13 +1,32 @@
-<mat-sidenav-container>
-  <mat-sidenav #sideNav mode="over" style="width: 50vw;">
-      <div fxLayout="column" fxLayoutAlign="start center" style="padding-top: 2em; padding-bottom: 2em;">
-          <div><button mat-button routerLink="/login" *ngIf="!isUserLoggedIn()" [ngClass]="{'hide': isUserLoggedIn()}" style="margin-bottom: 2em;" (click)="turnOffSidenav()">Login</button></div>
-          <div><button mat-button routerLink="/register" *ngIf="!isUserLoggedIn()" [ngClass]="{'hide': isUserLoggedIn()}" style="margin-bottom: 2em;" (click)="turnOffSidenav()">Register</button></div>
-          <div><button mat-button routerLink="/main" *ngIf="isUserLoggedIn()" (click)="logout()">Logout</button></div>
+<mat-drawer-container hasBackdrop="true" style="height: 100vh">
+    <mat-drawer #drawer mode="over" style="width: 60vw">
+      <div class="flex flex-col gap-12 mt-12 mb-12">
+        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
+        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
+        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
+        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
+        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
       </div>
-  </mat-sidenav>
-  <mat-sidenav-content style="height: 100vh;">
-      <!-- <app-navbar (sidenavClicked)="sidenavClickedHandler()"></app-navbar> -->
-      <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    </mat-drawer>
+    <mat-drawer-content>
+      <div class="flex flex-col" style="height: 100vh;">
+        <mat-toolbar color="primary" style="min-height: 66px;">
+          <div class="flex flex-row gap-4 items-center" style="width: 100vw;">
+            <button *ngIf="!hideMenuButton" mat-icon-button color="accent" (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+            <button mat-raised-button color="accent" (click)="home()" class="uppercase">home</button>
+            <div class="grow"></div>
+            <div *ngIf="hideMenuButton" class="flex flex-row items-center gap-4">
+                <!-- TODO: finish the routerlinks to their corresponding modules -->
+                <button mat-flat-button color="primary" routerLink="/" class="uppercase">leaderboards</button>
+                <button *ngIf="!firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/login" class="uppercase">login</button>
+                <button *ngIf="!firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/signup" class="uppercase">sign up</button>
+                <button *ngIf="firebase.userLoggedIn" mat-flat-button color="primary" (click)="logout()" class="uppercase">logout</button>
+            </div>
+          </div>
+        </mat-toolbar>
+        <div class="grow flex flex-col">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </mat-drawer-content>
+  </mat-drawer-container>

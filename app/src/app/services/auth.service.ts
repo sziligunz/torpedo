@@ -6,22 +6,36 @@ import { AngularFireAuth } from "@angular/fire/compat/auth";
 })
 export class AuthService {
 
-  constructor(private fireAuth: AngularFireAuth) { }
+  userLoggedIn: boolean = false
 
-  register(email: string, password: string) {
-    return this.fireAuth.createUserWithEmailAndPassword(email, password)
+  constructor(private firebaseAuth: AngularFireAuth) {
+    firebaseAuth.user.subscribe(user => {
+      this.userLoggedIn = user !== null && user !== undefined
+    })
+   }
+
+  signupUser(email: string, password: string): Promise<firebase.default.User | null> {
+    return new Promise(resolve => {
+      this.firebaseAuth.createUserWithEmailAndPassword(email, password)
+        .then(res => {this.userLoggedIn = true; resolve(res.user)})
+        .catch(error => { console.log("Couldn't register user: " + error); resolve(null) })
+    })
   }
 
-  login(email: string, password: string) {
-    return this.fireAuth.signInWithEmailAndPassword(email, password)
+  loginUser(email: string, password: string): Promise<firebase.default.User | null> {
+    return new Promise(resolve => {
+      this.firebaseAuth.signInWithEmailAndPassword(email, password)
+        .then(res => {this.userLoggedIn = true; console.log(this.userLoggedIn); resolve(res.user)})
+        .catch(error => { console.log("Couldn't sign in user: " + error); resolve(null)})
+    })
   }
 
-  logout() {
-    return this.fireAuth.signOut()
-  }
-
-  currentUser() {
-    return this.fireAuth.user
+  logout() : Promise<null> {
+    return new Promise(resolve => {
+      this.firebaseAuth.signOut()
+        .then(_ => {this.userLoggedIn = false; resolve(null)})
+        .catch(error => {console.log("Couldn't log out: " + error); resolve(null)})
+    })
   }
   
 }

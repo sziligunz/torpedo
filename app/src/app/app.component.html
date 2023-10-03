@@ -17,10 +17,10 @@
             <div class="grow"></div>
             <div *ngIf="hideMenuButton" class="flex flex-row items-center gap-4">
                 <!-- TODO: finish the routerlinks to their corresponding modules -->
-                <button mat-flat-button color="primary" routerLink="/" class="uppercase">leaderboards</button>
+                <button mat-flat-button color="primary" routerLink="/leaderboards" class="uppercase">leaderboards</button>
                 <button *ngIf="!firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/login" class="uppercase">login</button>
                 <button *ngIf="!firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/signup" class="uppercase">sign up</button>
-                <button *ngIf="firebase.userLoggedIn" mat-flat-button color="primary" (click)="logout()" class="uppercase">logout</button>
+                <button *ngIf="firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/signout" class="uppercase">sign out</button>
             </div>
           </div>
         </mat-toolbar>

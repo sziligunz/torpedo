@@ -16,7 +16,6 @@
             <button mat-raised-button color="accent" (click)="home()" class="uppercase">home</button>
             <div class="grow"></div>
             <div *ngIf="hideMenuButton" class="flex flex-row items-center gap-4">
-                <!-- TODO: finish the routerlinks to their corresponding modules -->
                 <button mat-flat-button color="primary" routerLink="/leaderboards" class="uppercase">leaderboards</button>
                 <button *ngIf="!firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/signin" class="uppercase">sign in</button>
                 <button *ngIf="!firebase.userLoggedIn" mat-flat-button color="primary" routerLink="/signup" class="uppercase">sign up</button>

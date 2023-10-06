@@ -61,7 +61,7 @@ export class SigninComponent {
         this.snackbar.createCheck("Successfully logged in!")
           .afterDismissed().subscribe(_ => { if (location.pathname == "/signin") this.router.navigateByUrl("/home") })
       })
-      .catch(error => { { console.log(error); this.enableButton() }; this.enableButton() })
+      .catch(error => { { console.log(error); this.enableButton() }})
   }
 
 }

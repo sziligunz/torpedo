@@ -1,10 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
-import { SnackbarComponent } from 'src/app/shared/SnackbarComponent';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +13,7 @@ import { SnackbarComponent } from 'src/app/shared/SnackbarComponent';
 export class SigninComponent {
 
   @ViewChild("signInButton") signInButton!: MatButton;
+  @ViewChild("emailInput") emailInput!: ElementRef;
 
   signInGroup = new FormGroup({
     email: new FormControl('', Validators.required),
@@ -48,6 +48,12 @@ export class SigninComponent {
       .then(user => {
         if (user == null) {
           this.snackbar.createReplay("Wrong email or password!")
+            .afterDismissed().subscribe(info => {
+              if (info.dismissedByAction === true) {
+                this.emailInput.nativeElement.focus();
+                this.emailInput.nativeElement.select();
+              }
+            })
           this.enableButton()
           return
         }

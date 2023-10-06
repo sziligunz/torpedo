@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 
 import { SignoutRoutingModule } from './signout-routing.module';
 import { SignoutComponent } from './signout.component';
+import { MatButtonModule } from '@angular/material/button';
 
 
 @NgModule({
   declarations: [
-    SignoutComponent
+    SignoutComponent,
   ],
   imports: [
     CommonModule,
-    SignoutRoutingModule
+    SignoutRoutingModule,
+    MatButtonModule
   ]
 })
 export class SignoutModule { }

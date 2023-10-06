@@ -1,1 +1,16 @@
-<p>signin works!</p>
+<div class="flex flex-col items-center justify-center mt-12 mb-12">
+    <h1 class="mb-12 text-center">Sign in to your existing account!</h1>
+    <form [formGroup]="loginGroup" (ngSubmit)="login(loginButton)" class="flex flex-col items-center justify-start gap-2">
+        <mat-form-field color="accent">
+            <mat-label>Email address</mat-label>
+            <input formControlName="email" matInput type="email" placeholder="example@gmail.com" required>
+            <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+        <mat-form-field color="accent">
+            <mat-label>Password</mat-label>
+            <input formControlName="password" matInput type="password" placeholder="123456" required>
+            <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+        <button #loginButton mat-flat-button color="primary" class="uppercase">login</button>
+    </form>
+</div>

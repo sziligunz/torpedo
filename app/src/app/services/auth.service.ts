@@ -25,7 +25,7 @@ export class AuthService {
   loginUser(email: string, password: string): Promise<firebase.default.User | null> {
     return new Promise(resolve => {
       this.firebaseAuth.signInWithEmailAndPassword(email, password)
-        .then(res => {this.userLoggedIn = true; console.log(this.userLoggedIn); resolve(res.user)})
+        .then(res => {this.userLoggedIn = true; resolve(res.user)})
         .catch(error => { console.log("Couldn't sign in user: " + error); resolve(null)})
     })
   }

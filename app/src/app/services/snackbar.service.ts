@@ -17,6 +17,10 @@ export class SnackbarService {
     return this.createSnackbar(message, "check")
   }
 
+  createReplay(message: string) : MatSnackBarRef<SnackbarComponent> {
+    return this.createSnackbar(message, "replay")
+  }
+
   private createSnackbar(message: string, actionLable: string) {
     return this.snackbar.openFromComponent(SnackbarComponent, {
       duration: 5000, data: [message, actionLable]

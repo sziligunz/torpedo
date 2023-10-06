@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 import { SnackbarComponent } from 'src/app/shared/SnackbarComponent';
 
 @Component({
@@ -13,36 +13,49 @@ import { SnackbarComponent } from 'src/app/shared/SnackbarComponent';
 })
 export class SigninComponent {
 
-  loginGroup = new FormGroup({
+  @ViewChild("signInButton") signInButton!: MatButton;
+
+  signInGroup = new FormGroup({
     email: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required)
   })
 
   constructor(
     private authService: AuthService,
-    private snackbar: MatSnackBar,
+    private snackbar: SnackbarService,
     private router: Router
   ) {
     if (authService.userLoggedIn) { router.navigateByUrl('/')}
   }
 
-  login(button: MatButton) {
-    const formData = this.loginGroup.getRawValue()
+  disableButton(enable = false) {
+    this.signInButton.disabled = !enable
+  }
+
+  enableButton() {
+    this.disableButton(true)
+  }
+
+  signIn(button: MatButton) {
+    this.disableButton()
+    const formData = this.signInGroup.getRawValue()
     if (!formData.email || !formData.password) {
-      this.snackbar.openFromComponent(SnackbarComponent, { duration: 5000, data: ["Every field must be filled out!", "close"] })
+      this.snackbar.createX("Every field must be filled out!")
+      this.enableButton()
       return
     }
     this.authService.loginUser(formData.email, formData.password)
       .then(user => {
         if (user == null) {
-          this.snackbar.openFromComponent(SnackbarComponent, { duration: 5000, data: ["Wrong email or password!", "replay"] })
+          this.snackbar.createReplay("Wrong email or password!")
+          this.enableButton()
           return
         }
         button.disabled = true
-        this.snackbar.openFromComponent(SnackbarComponent, { duration: 5000, data: ["Successfully logged in!", "check"] })
-          .afterDismissed().subscribe(_ => { if (location.pathname == "/login") this.router.navigateByUrl("/") })
+        this.snackbar.createCheck("Successfully logged in!")
+          .afterDismissed().subscribe(_ => { if (location.pathname == "/signin") this.router.navigateByUrl("/home") })
       })
-      .catch(error => console.log(error))
+      .catch(error => { console.log(error); this.enableButton() })
   }
 
 }

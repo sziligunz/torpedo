@@ -24,8 +24,8 @@ import { environment } from '../environments/environment';
 import { AngularFireModule } from "@angular/fire/compat";
 import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
+import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 
 @NgModule({
   declarations: [
@@ -49,7 +49,7 @@ import { provideMessaging, getMessaging } from '@angular/fire/messaging';
     AngularFireModule.initializeApp(environment.firebase),
     provideAuth(() => getAuth()),
     provideAnalytics(() => getAnalytics()),
-    provideFirestore(() => getFirestore()),
+   AngularFirestoreModule,
     provideMessaging(() => getMessaging())
   ],
   providers: [

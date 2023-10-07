@@ -16,8 +16,8 @@ Angular webapp that implements all the gamelogic and front-end.
 
 **SEPTEMBER:**
 
-- [ ] Navigation bar
-- [ ] Registration
+- [X] Navigation bar
+- [X] Registration
 - [ ] Data models
 - [ ] Services for data manipulation
 

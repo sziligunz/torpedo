@@ -15,33 +15,41 @@ Angular webapp that implements all the gamelogic and front-end.
 ## Road Map
 
 **SEPTEMBER:**
+
 - [ ] Navigation bar
 - [ ] Registration
 - [ ] Data models
 - [ ] Services for data manipulation
 
 **OCTOBER:**
+
 - [ ] Matchmaker logic
 
 **NOVEMBER:**
+
 - [ ] Game logic I.
 
 **DECEMBER:**
+
 - [ ] Game logic II.
 
 **JANUARY:**
+
 - [ ] Captians
 
 **FEBUARY:**
+
 - [ ] Leaderboard
 
 **MARCH:**
+
 - [ ] Finalization
 - [ ] Start work on thesis
 
 **APRIL:**
+
 - [ ] Thesis
 
 ----
 
-*Created by __AQ56DX__*
+*Created by **AQ56DX***

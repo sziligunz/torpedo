@@ -1,11 +1,10 @@
 <mat-drawer-container hasBackdrop="true" style="height: 100vh">
     <mat-drawer #drawer mode="over" style="width: 60vw">
       <div class="flex flex-col gap-12 mt-12 mb-12">
-        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
-        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
-        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
-        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
-        <div class="flex flex-row justify-center"><button mat-raised-button color="primary">Button</button></div>
+        <div class="flex flex-row justify-center"><button mat-raised-button routerLink="/leaderboards" (click)="drawer.toggle()" color="primary" class="uppercase">leaderboards</button></div>
+        <div *ngIf="!firebase.userLoggedIn" class="flex flex-row justify-center"><button mat-raised-button routerLink="/signin" (click)="drawer.toggle()" color="primary" class="uppercase">sign in</button></div>
+        <div *ngIf="!firebase.userLoggedIn" class="flex flex-row justify-center"><button mat-raised-button routerLink="/signup" (click)="drawer.toggle()" color="primary" class="uppercase">sign up</button></div>
+        <div *ngIf="firebase.userLoggedIn" class="flex flex-row justify-center"><button mat-raised-button routerLink="/signout" (click)="drawer.toggle()" color="primary" class="uppercase">sign out</button></div>
       </div>
     </mat-drawer>
     <mat-drawer-content>

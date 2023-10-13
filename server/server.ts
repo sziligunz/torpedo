@@ -1,8 +1,11 @@
 import { Server } from "socket.io";
+import { createServer } from "http";
 
-const io = new Server(4444, {
+
+const httpServer = createServer();
+const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:4200",
+    origin: "http://192.168.0.133:4200",
     methods: ["GET", "POST"]
   }
 });
@@ -29,4 +32,15 @@ io.on("connection", (socket) => {
     })
 });
 
+httpServer.listen(4444, "0.0.0.0");
+
 console.log("Server started on port: 4444")
+
+async function tryMatchmaking() {
+  while(true) {
+    console.log("trying to matchmake...")
+    await new Promise(f => setTimeout(f, 1000))
+  }
+}
+
+// tryMatchmaking()

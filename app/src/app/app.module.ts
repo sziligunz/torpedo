@@ -27,6 +27,12 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 
+// SOCKET.IO
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+import { UserCrudService } from './services/userCrud.service';
+import { AuthService } from './services/auth.service';
+import { SocketService } from './services/socket.service';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -50,10 +56,14 @@ import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
     provideAuth(() => getAuth()),
     provideAnalytics(() => getAnalytics()),
    AngularFirestoreModule,
-    provideMessaging(() => getMessaging())
+    provideMessaging(() => getMessaging()),
+    SocketIoModule.forRoot(environment.socketServerConfig as SocketIoConfig),
   ],
   providers: [
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+    UserCrudService,
+    AuthService,
+    SocketService
   ],
   bootstrap: [AppComponent]
 })

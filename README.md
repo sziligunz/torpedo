@@ -23,7 +23,7 @@ Angular webapp that implements all the gamelogic and front-end.
 
 **OCTOBER:**
 
-- [ ] Matchmaker logic
+- [X] Matchmaker logic
 
 **NOVEMBER:**
 

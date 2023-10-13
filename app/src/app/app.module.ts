@@ -16,6 +16,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 import { environment } from '../environments/environment';
@@ -52,6 +53,7 @@ import { SocketService } from './services/socket.service';
     MatFormFieldModule,
     MatDialogModule,
     MatCardModule,
+    MatProgressSpinnerModule,
     AngularFireModule.initializeApp(environment.firebase),
     provideAuth(() => getAuth()),
     provideAnalytics(() => getAnalytics()),

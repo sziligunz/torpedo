@@ -3,5 +3,8 @@
         <h1 *ngIf="!authService.userLoggedIn" class="mb-12 text-center">Sign in to your account to play!</h1>
         <h1 *ngIf="authService.userLoggedIn" class="mb-12 text-center">Press PLAY to start searching for a match.</h1>
     </div>
-    <button class="uppercase pt-8 pb-8 pl-12 pr-12 font-bold text-8xl text-white" mat-flat-button color="primary" (click)="startMatchmaking()" [disabled]="!authService.userLoggedIn">p l a y</button>
+    <button #mmButton class="uppercase pt-8 pb-8 pl-12 pr-12 font-bold text-8xl text-white" mat-flat-button color="primary" (click)="startMatchmaking()" [disabled]="!authService.userLoggedIn">
+        <mat-spinner *ngIf="spinSpinner" diameter="50" color="accent"></mat-spinner>
+        <span *ngIf="!spinSpinner">p l a y</span>
+    </button>
 </div>

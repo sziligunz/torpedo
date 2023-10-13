@@ -1,7 +1,8 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { createServer } from "http";
+import { Queue } from "queue-typescript";
 
-
+// Server
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
@@ -10,37 +11,47 @@ const io = new Server(httpServer, {
   }
 });
 
-const mmLobby: string[] = []
+// Vars
+const mmLobby: Queue<{userId: string, socket: Socket}> = new Queue()
 
-
+// Server events
 io.on("connection", (socket) => {
     console.log(`Someone connected: ${socket.id}`)
 
     socket.once("join-mm", data => {
       socket.join("mm")
       socket.data.userId = data.userId
-      mmLobby.push(data.userId)
+      mmLobby.enqueue({userId: data.userId, socket: socket})
       console.log(`User joined the matchmaking: ${data.userId}`)
-      io.to("mm").emit("mm-lobby-count", mmLobby)
+      io.to("mm").emit("mm-lobby-count", mmLobby.toArray().map(x => [x.userId, x.socket.id]))
     })
 
     socket.on("disconnecting", () => {
       if (socket.data.userId) {
         console.log(`User left the matchmaking: ${socket.data.userId}`)
-        mmLobby.splice(mmLobby.findIndex(x => x == socket.data.userId), 1)
+        mmLobby.remove({userId: socket.data.userId, socket: socket})
       }
     })
 });
 
+// Start server
 httpServer.listen(4444, "0.0.0.0");
-
 console.log("Server started on port: 4444")
 
+// Matchmaking logic
 async function tryMatchmaking() {
   while(true) {
-    console.log("trying to matchmake...")
-    await new Promise(f => setTimeout(f, 1000))
+    console.log(`Lobby size: ${mmLobby.length}`)
+    while(mmLobby.length >= 2) {
+      const first = mmLobby.dequeue()
+      const second = mmLobby.dequeue()
+      first.socket.leave("mm")
+      second.socket.leave("mm")
+      console.log(`Matched player ${first.userId} and ${second.userId}`)
+    }
+    await new Promise(f => setTimeout(f, 5000))
   }
 }
 
-// tryMatchmaking()
+// Start matchmaking
+tryMatchmaking()

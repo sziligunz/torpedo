@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "queue-typescript": "^1.0.1",
     "socket.io": "^4.7.2",
     "typescript": "^5.2.2"
   }

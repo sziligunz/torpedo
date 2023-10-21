@@ -16,4 +16,12 @@ export class UserCrudService {
     this.firestore.collection<User>(this.USER_PATH).doc(user.id).set(asObject<User>(user))
   }
 
+  async getLoggedInUser(userid: string) : Promise<User | undefined> {
+    return new Promise(resolve => {
+      this.firestore.collection<User>(this.USER_PATH).doc(userid).get().subscribe(
+        user => {resolve(user.data())}
+      )
+    })
+  }
+
 }

@@ -4,11 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "echo \"Compiling server...\" && tsc server.ts && echo \"Starting server...\" && echo \"============================\" && node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "queue-typescript": "^1.0.1",
     "socket.io": "^4.7.2",
     "typescript": "^5.2.2"
   }

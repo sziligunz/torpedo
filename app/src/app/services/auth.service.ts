@@ -37,5 +37,13 @@ export class AuthService {
         .catch(error => {console.log("Couldn't log out: " + error); resolve(null)})
     })
   }
+
+  async getCurrentUser() : Promise<string> {
+    const user = await this.firebaseAuth.currentUser
+    return new Promise(resolve => {
+      if (user === null) resolve("")
+      resolve(user!.uid)
+    })
+  }
   
 }

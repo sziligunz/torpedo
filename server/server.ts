@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { createServer } from "http";
 import { Queue } from "queue-typescript";
-import {randomBytes} from "crypto";
+import { randomBytes } from "crypto";
 
 // Server
 const httpServer = createServer();
@@ -30,7 +30,12 @@ io.on("connection", (socket) => {
     socket.on("disconnecting", () => {
       if (socket.data.userId) {
         console.log(`User left the matchmaking: ${socket.data.userId}`)
-        mmLobby.remove({userId: socket.data.userId, socket: socket})
+        if (mmLobby.length === 1) {
+          mmLobby.dequeue()
+        }
+        else {
+          mmLobby.remove(mmLobby.toArray().filter(x => x.userId == socket.data.userId)[0])
+        }
       }
     })
 });
@@ -42,7 +47,8 @@ console.log("Server started on port: 4444")
 // Matchmaking logic
 async function tryMatchmaking() {
   while(true) {
-    console.log(`Lobby size: ${mmLobby.length}`)
+    const time = new Date().toISOString().split('T')[1].split('.')[0]
+    console.log(`[${time}] Lobby size: ${mmLobby.length}`)
     while(mmLobby.length >= 2) {
       const first = mmLobby.dequeue()
       const second = mmLobby.dequeue()

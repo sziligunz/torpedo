@@ -28,7 +28,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("disconnecting", () => {
-      if (socket.data.userId) {
+      if (socket.data.userId && socket.rooms.has("mm")) {
         console.log(`User left the matchmaking: ${socket.data.userId}`)
         if (mmLobby.length === 1) {
           mmLobby.dequeue()
@@ -37,6 +37,7 @@ io.on("connection", (socket) => {
           mmLobby.remove(mmLobby.toArray().filter(x => x.userId == socket.data.userId)[0])
         }
       }
+      console.log(`Someone disconnected: ${socket.id}`)
     })
 });
 

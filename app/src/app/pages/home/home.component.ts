@@ -15,7 +15,6 @@ import { UserCrudService } from 'src/app/services/userCrud.service';
 export class HomeComponent {
 
   public spinSpinner: boolean = false
-  private roomHash: string = ""
 
   @ViewChild("mmButton") mmButton!: MatButton
 
@@ -26,20 +25,18 @@ export class HomeComponent {
     private snackbarService: SnackbarService,
     private router: Router
     ) {
-      socketService.roomHash.pipe(first()).subscribe(newRoomHash => {
-        this.mmButton.disabled = true
+      socketService.$roomHash.pipe(first()).subscribe(_ => {
         this.spinSpinner = false
-        this.roomHash = newRoomHash
         this.snackbarService.createCheck("Match Found")
-          .afterDismissed().subscribe(event => {
-            // TODO: navigate to game screen
-            // this.router.navigateByUrl("game")
+          .afterDismissed().subscribe(_ => {
+            if (location.pathname == "/home") this.router.navigateByUrl("/game")
           })
       })
     }
 
   async startMatchmaking() {
     this.spinSpinner = true
+    this.mmButton.disabled = true
     this.snackbarService.createCheck("Looking for match")
     const user = await this.userCrudService.getLoggedInUser(await this.authService.getCurrentUser())
     this.socketService.socket.emit("join-mm", {userId: user?.email})

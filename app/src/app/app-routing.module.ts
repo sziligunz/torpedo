@@ -7,6 +7,7 @@ const routes: Routes = [
   { path: 'signup', loadChildren: () => import('./pages/signup/signup.module').then(m => m.SignupModule) },
   { path: 'signout', loadChildren: () => import('./pages/signout/signout.module').then(m => m.SignoutModule) },
   { path: 'signin', loadChildren: () => import('./pages/signin/signin.module').then(m => m.SigninModule) },
+  { path: 'game', loadChildren: () => import('./pages/game/game.module').then(m => m.GameModule) },
   { path: '**', redirectTo: "/home"}
 ];
 

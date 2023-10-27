@@ -14,6 +14,7 @@ const io = new Server(httpServer, {
 
 // Vars
 const mmLobby: Queue<{userId: string, socket: Socket}> = new Queue()
+const debug = true
 
 // Server events
 io.on("connection", (socket) => {
@@ -50,16 +51,26 @@ async function tryMatchmaking() {
   while(true) {
     const time = new Date().toISOString().split('T')[1].split('.')[0]
     console.log(`[${time}] Lobby size: ${mmLobby.length}`)
-    while(mmLobby.length >= 2) {
-      const first = mmLobby.dequeue()
-      const second = mmLobby.dequeue()
+    if (debug === true && mmLobby.length >= 1) {
       const roomHash = randomBytes(20).toString('hex');
+      const first = mmLobby.dequeue()
       first.socket.leave("mm")
-      second.socket.leave("mm")
       first.socket.join(roomHash)
-      second.socket.join(roomHash)
       io.to(roomHash).emit("start-game", roomHash)
-      console.log(`Matched player ${first.userId} and ${second.userId} in room ${roomHash}`)
+      console.log(`Matched player ${first.userId} in room ${roomHash}`)
+    }
+    else {
+      while(mmLobby.length >= 2) {
+        const first = mmLobby.dequeue()
+        const second = mmLobby.dequeue()
+        const roomHash = randomBytes(20).toString('hex');
+        first.socket.leave("mm")
+        second.socket.leave("mm")
+        first.socket.join(roomHash)
+        second.socket.join(roomHash)
+        io.to(roomHash).emit("start-game", roomHash)
+        console.log(`Matched player ${first.userId} and ${second.userId} in room ${roomHash}`)
+      }
     }
     await new Promise(f => setTimeout(f, 5000))
   }

@@ -22,7 +22,7 @@
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
     "ngx-socket-io": "^4.5.1",
-    "pixi.js": "^7.3.2",
+    "pixi.js": "^7.2.4",
     "rxfire": "^6.0.4",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.7.2",

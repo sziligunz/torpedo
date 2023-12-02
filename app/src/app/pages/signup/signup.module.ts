@@ -13,19 +13,19 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
-  declarations: [
-    SignupComponent
-  ],
-  imports: [
-    CommonModule,
-    SignupRoutingModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatButtonModule,
-    ReactiveFormsModule,
-    MatSnackBarModule,
-    FormsModule
-  ]
+    declarations: [
+        SignupComponent
+    ],
+    imports: [
+        CommonModule,
+        SignupRoutingModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatButtonModule,
+        ReactiveFormsModule,
+        MatSnackBarModule,
+        FormsModule
+    ]
 })
 export class SignupModule { }

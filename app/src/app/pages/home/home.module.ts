@@ -8,14 +8,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @NgModule({
-  declarations: [
-    HomeComponent
-  ],
-  imports: [
-    CommonModule,
-    HomeRoutingModule,
-    MatButtonModule,
-    MatProgressSpinnerModule
-  ]
+    declarations: [
+        HomeComponent
+    ],
+    imports: [
+        CommonModule,
+        HomeRoutingModule,
+        MatButtonModule,
+        MatProgressSpinnerModule
+    ]
 })
 export class HomeModule { }

@@ -7,13 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 
 
 @NgModule({
-  declarations: [
-    SignoutComponent,
-  ],
-  imports: [
-    CommonModule,
-    SignoutRoutingModule,
-    MatButtonModule
-  ]
+    declarations: [
+        SignoutComponent,
+    ],
+    imports: [
+        CommonModule,
+        SignoutRoutingModule,
+        MatButtonModule
+    ]
 })
 export class SignoutModule { }

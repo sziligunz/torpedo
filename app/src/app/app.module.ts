@@ -35,38 +35,38 @@ import { AuthService } from './services/auth.service';
 import { SocketService } from './services/socket.service';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    MatFormFieldModule,
-    MatDialogModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    provideAuth(() => getAuth()),
-    provideAnalytics(() => getAnalytics()),
-   AngularFirestoreModule,
-    provideMessaging(() => getMessaging()),
-    SocketIoModule.forRoot(environment.socketServerConfig as SocketIoConfig),
-  ],
-  providers: [
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-    UserCrudService,
-    AuthService,
-    SocketService
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        MatFormFieldModule,
+        MatDialogModule,
+        MatCardModule,
+        MatProgressSpinnerModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        provideAuth(() => getAuth()),
+        provideAnalytics(() => getAnalytics()),
+        AngularFirestoreModule,
+        provideMessaging(() => getMessaging()),
+        SocketIoModule.forRoot(environment.socketServerConfig as SocketIoConfig),
+    ],
+    providers: [
+        { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+        UserCrudService,
+        AuthService,
+        SocketService
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }

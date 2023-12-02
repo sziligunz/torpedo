@@ -6,12 +6,12 @@ import { LeaderboardsComponent } from './leaderboards.component';
 
 
 @NgModule({
-  declarations: [
-    LeaderboardsComponent
-  ],
-  imports: [
-    CommonModule,
-    LeaderboardsRoutingModule
-  ]
+    declarations: [
+        LeaderboardsComponent
+    ],
+    imports: [
+        CommonModule,
+        LeaderboardsRoutingModule
+    ]
 })
 export class LeaderboardsModule { }

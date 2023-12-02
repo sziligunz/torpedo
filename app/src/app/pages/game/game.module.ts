@@ -6,12 +6,12 @@ import { GameComponent } from './game.component';
 
 
 @NgModule({
-  declarations: [
-    GameComponent
-  ],
-  imports: [
-    CommonModule,
-    GameRoutingModule
-  ]
+    declarations: [
+        GameComponent
+    ],
+    imports: [
+        CommonModule,
+        GameRoutingModule
+    ]
 })
 export class GameModule { }

@@ -7,7 +7,7 @@ import { randomBytes } from "crypto";
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://192.168.0.133:4200",
+        origin: "http://192.168.0.135:4200",
         methods: ["GET", "POST"]
     }
 });

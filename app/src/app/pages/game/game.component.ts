@@ -2,7 +2,7 @@ import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
-import { MainScene } from './game.logic';
+import { MainScene, MainSceneConfig } from './game.logic';
 
 @Component({
     selector: 'app-game',
@@ -24,7 +24,7 @@ export class GameComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.appContainer.nativeElement.appendChild(this.app.view)
-        const mainScene = new MainScene(this.app)
+        const mainScene = new MainScene(this.app, new MainSceneConfig())
     }
 
 }

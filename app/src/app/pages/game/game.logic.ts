@@ -1,33 +1,78 @@
-import { Application, Texture, TilingSprite, Container, Sprite, FederatedPointerEvent } from 'pixi.js';
+import { Application, Texture, TilingSprite, Container, Sprite, FederatedPointerEvent, DisplayObject } from 'pixi.js';
+import gsap from 'gsap';
 
-export class MainSceneConfig {
-    public tilePngPath = 'assets/tile_water.png'
-    public tilePngSize = 256
-    public tileNumber = 6
-    public tileScale  = 0.5
+
+export class Board extends Container {
+
+    private app: Application
+    private tileSize: number
+    private tileNumber: number
+    private tileScale: number
+    private tileTexture: Texture
+    private animationDuration: number
+
+    constructor(
+        app: Application,
+        tileSize: number = 256,
+        tileNumber: number = 8,
+        tileScale: number = 0.3,
+        tileTexture: Texture = Texture.from('assets/tile_water.png'),
+        animationDuration = 0.2
+    ) {
+        super()
+
+        this.app = app
+        this.tileSize = tileSize
+        this.tileNumber = tileNumber
+        this.tileScale = tileScale
+        this.tileTexture = tileTexture
+        this.animationDuration = animationDuration
+
+        for (let i = 0; i < this.tileNumber; i++) {
+            for (let j = 0; j < this.tileNumber; j++) {
+                let child = Sprite.from(this.tileTexture)
+                child.scale.set(this.tileScale)
+                child.position.set(i * this.tileSize * tileScale, j * this.tileSize * tileScale)
+                child.anchor.set(0.5)
+                child.eventMode = 'static'
+                // TODO: add event listener
+                child.addEventListener('click', e => {
+                    (e.currentTarget as Sprite).renderable = false
+                })
+                child.addEventListener('mouseover', e => {
+                    gsap.to((e.currentTarget as Sprite).scale, { x: this.tileScale + 0.05, y: this.tileScale + 0.05, duration: this.animationDuration })
+                })
+                child.addEventListener('mouseout', e => {
+                    gsap.to((e.currentTarget as Sprite).scale, { x: this.tileScale, y: this.tileScale, duration: this.animationDuration })
+                })
+                this.addChild(child)
+            }
+        }
+    }
+
+    public centerBoard() {
+        this.position.set(
+            this.app.stage.width / 2,
+            this.app.stage.height / 2
+        )
+    }
 }
 
 export class MainScene extends Container {
 
-    private bottomWaterTiles: TilingSprite
+    private myShipsBoard!: Board
 
-    constructor(app: Application, config: MainSceneConfig) {
+    constructor(app: Application) {
         super()
 
-        const waterTileTexture = Texture.from(config.tilePngPath)
-        const dimension = config.tilePngSize * config.tileNumber * config.tileScale
-        this.bottomWaterTiles = new TilingSprite(waterTileTexture, dimension, dimension)
-        this.bottomWaterTiles.tileScale.set(config.tileScale, config.tileScale)
-        this.bottomWaterTiles.eventMode = 'static'
-
-        this.bottomWaterTiles.addEventListener('click', e => console.log(e))
-
-        app.stage.addChild(this.bottomWaterTiles)
-
-        // let elapsed = 0.0;
-        // app.ticker.add((delta) => {
-        //     elapsed += delta;
-        // })
+        this.myShipsBoard = new Board(
+            app,
+            256,
+            8,
+            0.3,
+            Texture.from('assets/tile_water.png')
+        )
+        app.stage.addChild(this.myShipsBoard)
+        this.myShipsBoard.centerBoard()
     }
-
 }

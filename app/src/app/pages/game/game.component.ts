@@ -23,9 +23,19 @@ export class GameComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.app = new Application({ width: 1300, height: document.getElementById("gameLogicContainer")?.parentElement?.parentElement?.clientHeight })
+        this.app = new Application({
+            width: document.body.clientWidth,
+            height: document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
+        })
         this.appContainer.nativeElement.appendChild(this.app.view)
         const mainScene = new MainScene(this.app)
+        window.addEventListener('resize', (e: any) => {
+            this.app.renderer.resize(
+                document.body.clientWidth,
+                document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
+                )
+            mainScene.resize()
+            this.app.render()
+        })
     }
-
 }

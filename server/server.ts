@@ -51,7 +51,7 @@ async function tryMatchmaking() {
   while(true) {
     const time = new Date().toISOString().split('T')[1].split('.')[0]
     console.log(`[${time}] Lobby size: ${mmLobby.length}`)
-    if (debug === true && mmLobby.length >= 1) {
+    if (debug && mmLobby.length >= 1) {
       const roomHash = randomBytes(20).toString('hex');
       const first = mmLobby.dequeue()
       first.socket.leave("mm")
@@ -72,7 +72,7 @@ async function tryMatchmaking() {
         console.log(`Matched player ${first.userId} and ${second.userId} in room ${roomHash}`)
       }
     }
-    await new Promise(f => setTimeout(f, 5000))
+    await new Promise(f => setTimeout(f, 1000))
   }
 }
 

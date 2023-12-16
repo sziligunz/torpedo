@@ -1,4 +1,4 @@
-import { Application, Texture, Container, Sprite, Rectangle } from 'pixi.js';
+import { Application, Texture, Container, Sprite, Rectangle, FederatedEventMap, DEG_TO_RAD, Graphics } from 'pixi.js';
 import gsap from 'gsap';
 
 export interface Position {
@@ -42,7 +42,7 @@ export class Board extends Container {
         for (let i = 0; i < this.tileNumber; i++) {
             for (let j = 0; j < this.tileNumber; j++) {
                 let child = Sprite.from(this.tileTexture)
-                child.anchor.set(0.5)
+                child.anchor.set(0.5, 0.5)
                 child.scale.set(this.tileScale)
                 child.position.set(i * this.tileSize * tileScale, j * this.tileSize * tileScale)
                 child.eventMode = 'static'
@@ -61,9 +61,7 @@ export class Board extends Container {
     }
 
     public centerBoardVertically() {
-        this._calculateBounds()
-        this.position.y = (this.app.renderer.screen.bottom - this.getBounds().height) / 2
-        this._calculateBounds()
+        this.position.y = (this.app.renderer.screen.bottom - this.tileSize * this.tileScale * (this.tileNumber-1)) / 2
     }
 
     public setLeftPadding(padding: number) {
@@ -72,8 +70,8 @@ export class Board extends Container {
 
     public getDimensions() {
         return new Rectangle(
-            this.position.x - this.tileSize/2,
-            this.position.y - this.tileSize/2,
+            this.position.x - this.tileSize * this.tileScale / 2,
+            this.position.y - this.tileSize * this.tileScale / 2,
             this.width + this.tileSize * this.tileScale,
             this.height + this.tileSize * this.tileScale)
     }
@@ -85,10 +83,38 @@ export class Ship extends Sprite {
     private imageSize: Size
     private imgaeScale: number
     private animationDuration: number
-    // public sprite;
+    private myShipsBoard: Board
+
+    private dragging = false
+    private positionBeforeDragging: Position = {x: 0, y: 0}
+    private moveEventCallback = (event: MouseEvent) => {
+        this.position.set(event.clientX, event.clientY)
+    }
+    private dragStartCallback = (event: MouseEvent) => {
+        this.dragging = true
+        this.positionBeforeDragging = {x: this.position.x, y: this.position.y}
+        gsap.to((event.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
+        window.addEventListener('mousemove', this.moveEventCallback)
+    }
+    private dragEndCallback = (event: MouseEvent) => {
+        this.dragging = false
+        // this.myShipsBoard.children.forEach(child => {
+        //     if (spritesOverlapping(this, child as Sprite)) {
+        //         this.position.set(child.position.x, child.position.y)
+        //         return
+        //     }
+        // })
+        // this.position.set(this.positionBeforeDragging.x, this.positionBeforeDragging.y)
+        window.removeEventListener('mousemove', this.moveEventCallback)
+    }
+    private rotateCallback = (event: any) => {
+        if (this.dragging && event.key === 'r')
+            this.angle += 90
+    }
 
     constructor(
         app: Application,
+        myShipsBoard: Board,
         imageSize: Size,
         imgaeScale: number,
         imageTexture: Texture,
@@ -99,13 +125,14 @@ export class Ship extends Sprite {
         this.imageSize = imageSize
         this.imgaeScale = imgaeScale
         this.animationDuration = animationDuration
+        this.myShipsBoard = myShipsBoard
 
-        // this.sprite = Sprite.from(this.imageTexture)
         this.scale.set(this.imgaeScale)
         this.anchor.set(0.5)
         this.eventMode = 'static'
         this.addEventListener('mouseover', e => {
-            gsap.to((e.currentTarget as Sprite).scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
+            if (!this.dragging)
+                gsap.to((e.currentTarget as Sprite).scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
         })
         this.addEventListener('mouseout', e => {
             gsap.to((e.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
@@ -114,6 +141,25 @@ export class Ship extends Sprite {
 
     public centerVertically() {
         this.position.y = this.app.renderer.screen.bottom / 2
+    }
+
+    public makeDraggable() {
+        this.addEventListener('mousedown', this.dragStartCallback)
+        window.addEventListener('mouseup', this.dragEndCallback)
+        window.addEventListener('keydown', this.rotateCallback)
+    }
+
+    public makeNonDraggable() {
+        this.removeEventListener('mousedown', this.dragStartCallback)
+        window.removeEventListener('mouseup', this.dragEndCallback)
+    }
+
+    public getDimensions() {
+        return new Rectangle(
+            this.position.x - this.imageSize.width * this.imgaeScale / 2,
+            this.position.y - this.imageSize.height * this.imgaeScale / 2,
+            this.imageSize.width * this.imgaeScale,
+            this.imageSize.height * this.imgaeScale)
     }
 
 }
@@ -140,16 +186,28 @@ export class MainScene extends Container {
 
         const longShip = new Ship(
             app,
+            this.myShipsBoard,
             {width: 256, height: 768}, 
-            0.3, 
+            0.28, 
             Texture.from("assets/long_ship.png"))
-        longShip.position.set(this.myShipsBoard.getDimensions().width, 0)
-        longShip.centerVertically()
         this.app.stage.addChild(longShip)
+        longShip.centerVertically()
+        longShip.makeDraggable()
+
+        // Debug
+        // const debugGraphics = new Graphics();
+        // app.stage.addChild(debugGraphics);
+        // this.app.ticker.add((t) => {
+        //     const bounds = longShip.getBounds();
+        //     debugGraphics.clear();
+        //     debugGraphics.lineStyle(2, 0xFF0000); // Set line color and thickness
+        //     debugGraphics.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        // })
     }
 
     public resize() {
         this.myShipsBoard.centerBoardVertically()
         this.myShipsBoard.setLeftPadding(20)
     }
+
 }

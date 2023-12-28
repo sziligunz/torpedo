@@ -1,4 +1,4 @@
-import { Application, Texture, Container, Sprite, Rectangle, FederatedEventMap, DEG_TO_RAD, Graphics, Point } from 'pixi.js';
+import { Application, Texture, Container, Sprite, Rectangle, FederatedEventMap, DEG_TO_RAD, Graphics, Point, DisplayObject } from 'pixi.js';
 import gsap from 'gsap';
 
 export interface Position {
@@ -13,6 +13,21 @@ export interface Size {
 
 export function getTrueClient(app: Application, event: MouseEvent) : Position {
     return {x: event.clientX, y: event.clientY - (document.body.clientHeight - app.renderer.screen.bottom)}
+}
+
+export function raycastPoint(point: Point | Position, sprites: Sprite[]): Sprite[] {
+    const hitSprites: (Sprite)[] = [];
+    for (const sprite of sprites) {
+        const spriteBounds = sprite.getBounds();
+
+        if (point.x >= spriteBounds.x &&
+            point.x <= spriteBounds.x + spriteBounds.width &&
+            point.y >= spriteBounds.y &&
+            point.y <= spriteBounds.y + spriteBounds.height) {
+        hitSprites.push(sprite);
+        }
+    }
+    return hitSprites;
 }
 
 export class Board extends Container {
@@ -105,19 +120,25 @@ export class Ship extends Sprite {
     }
     private dragEndCallback = (event: MouseEvent) => {
         this.dragging = false
-        // this.myShipsBoard.children.forEach(child => {
-        //     if (spritesOverlapping(this, child as Sprite)) {
-        //         this.position.set(child.position.x, child.position.y)
-        //         return
-        //     }
-        // })
-        // this.position.set(this.positionBeforeDragging.x, this.positionBeforeDragging.y)
+        const hitObjects = raycastPoint(getTrueClient(this.app, event), this.myShipsBoard.children as Sprite[])
+        if (hitObjects.length >= 1) {
+            gsap.to(this.position, {
+                x: hitObjects[0].position.x + hitObjects[0].parent.position.x,
+                y: hitObjects[0].position.y + hitObjects[0].parent.position.y,
+                duration: this.animationDuration
+            })
+        } else {
+            gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration })
+        }
         gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
         window.removeEventListener('mousemove', this.moveEventCallback)
     }
+    private doneRotating = true
     private rotateCallback = (event: any) => {
-        if (this.dragging && event.key === 'r')
-            this.angle += 90
+        if (this.doneRotating && this.dragging && event.key === 'r') {
+            this.doneRotating = false
+            gsap.to(this, { angle: this.angle+90, duration: this.animationDuration, onComplete: e => {this.doneRotating = true}})
+        }
     }
 
     constructor(

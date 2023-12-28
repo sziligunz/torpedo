@@ -1,4 +1,4 @@
-import { Application, Texture, Container, Sprite, Rectangle, FederatedEventMap, DEG_TO_RAD, Graphics } from 'pixi.js';
+import { Application, Texture, Container, Sprite, Rectangle, FederatedEventMap, DEG_TO_RAD, Graphics, Point } from 'pixi.js';
 import gsap from 'gsap';
 
 export interface Position {
@@ -9,6 +9,10 @@ export interface Position {
 export interface Size {
     width: number
     height: number
+}
+
+export function getTrueClient(app: Application, event: MouseEvent) : Position {
+    return {x: event.clientX, y: event.clientY - (document.body.clientHeight - app.renderer.screen.bottom)}
 }
 
 export class Board extends Container {
@@ -88,12 +92,15 @@ export class Ship extends Sprite {
     private dragging = false
     private positionBeforeDragging: Position = {x: 0, y: 0}
     private moveEventCallback = (event: MouseEvent) => {
-        this.position.set(event.clientX, event.clientY)
+        const targetPosition = getTrueClient(this.app, event)
+        gsap.to(this.position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
     }
     private dragStartCallback = (event: MouseEvent) => {
         this.dragging = true
         this.positionBeforeDragging = {x: this.position.x, y: this.position.y}
         gsap.to((event.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
+        const targetPosition = getTrueClient(this.app, event)
+        gsap.to((event.currentTarget as Sprite).position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
         window.addEventListener('mousemove', this.moveEventCallback)
     }
     private dragEndCallback = (event: MouseEvent) => {
@@ -105,6 +112,7 @@ export class Ship extends Sprite {
         //     }
         // })
         // this.position.set(this.positionBeforeDragging.x, this.positionBeforeDragging.y)
+        gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
         window.removeEventListener('mousemove', this.moveEventCallback)
     }
     private rotateCallback = (event: any) => {
@@ -128,7 +136,7 @@ export class Ship extends Sprite {
         this.myShipsBoard = myShipsBoard
 
         this.scale.set(this.imgaeScale)
-        this.anchor.set(0.5)
+        this.anchor.set(0.5, 0.5)
         this.eventMode = 'static'
         this.addEventListener('mouseover', e => {
             if (!this.dragging)
@@ -190,11 +198,12 @@ export class MainScene extends Container {
             {width: 256, height: 768}, 
             0.28, 
             Texture.from("assets/long_ship.png"))
+        longShip.x = this.app.renderer.screen.right / 2
         this.app.stage.addChild(longShip)
         longShip.centerVertically()
         longShip.makeDraggable()
 
-        // Debug
+        // // Debug
         // const debugGraphics = new Graphics();
         // app.stage.addChild(debugGraphics);
         // this.app.ticker.add((t) => {

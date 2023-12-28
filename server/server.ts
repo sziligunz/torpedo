@@ -51,7 +51,7 @@ async function tryMatchmaking() {
   while(true) {
     const time = new Date().toISOString().split('T')[1].split('.')[0]
     console.log(`[${time}] Lobby size: ${mmLobby.length}`)
-    if (debug && mmLobby.length >= 1) {
+    if (debug != undefined && debug && mmLobby.length >= 1) {
       const roomHash = randomBytes(20).toString('hex');
       const first = mmLobby.dequeue()
       first.socket.leave("mm")

@@ -196,7 +196,8 @@ export class Ship extends Sprite {
 export class MainScene extends Container {
 
     private app: Application
-    private myShipsBoard!: Board
+    public myShipsBoard: Board
+    public longShip: Ship
 
     constructor(app: Application) {
         super()
@@ -213,16 +214,15 @@ export class MainScene extends Container {
         this.myShipsBoard.centerBoardVertically()
         this.myShipsBoard.setLeftPadding(20)
 
-        const longShip = new Ship(
+        this.longShip = new Ship(
             app,
             this.myShipsBoard,
             {width: 256, height: 768}, 
             0.28, 
             Texture.from("assets/long_ship.png"))
-        longShip.x = this.app.renderer.screen.right / 2
-        this.app.stage.addChild(longShip)
-        longShip.centerVertically()
-        longShip.makeDraggable()
+        this.longShip.x = this.app.renderer.screen.right / 2
+        this.app.stage.addChild(this.longShip)
+        this.longShip.centerVertically()
 
         // // Debug
         // const debugGraphics = new Graphics();

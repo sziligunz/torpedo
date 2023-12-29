@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
 import { MainScene } from './game.logic';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
     selector: 'app-game',
@@ -17,10 +18,17 @@ export class GameComponent implements AfterViewInit {
 
     constructor(
         private router: Router,
-        private socketService: SocketService
+        private socketService: SocketService,
+        private authService: AuthService
     ) {
-        if (this.socketService.roomHash === null) this.router.navigateByUrl("/home")
+        if (this.socketService.roomHash === null) {
+            this.router.navigateByUrl("/home")
+            return
+        }
+        this.socketService.socket.on('start-game', () => this.startGame())
     }
+
+    private mainScene!: MainScene
 
     ngAfterViewInit(): void {
         this.app = new Application({
@@ -28,14 +36,20 @@ export class GameComponent implements AfterViewInit {
             height: document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
         })
         this.appContainer.nativeElement.appendChild(this.app.view)
-        const mainScene = new MainScene(this.app)
+        this.mainScene = new MainScene(this.app)
         window.addEventListener('resize', (e: any) => {
             this.app.renderer.resize(
                 document.body.clientWidth,
                 document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
                 )
-            mainScene.resize()
+            this.mainScene.resize()
             this.app.render()
         })
+
+        this.socketService.socket.emit('ready')
+    }
+
+    startGame() {
+        this.mainScene.longShip.makeDraggable()
     }
 }

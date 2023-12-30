@@ -2,7 +2,7 @@ import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
-import { MainScene } from './game.logic';
+import { MainScene } from './logic/MainScene ';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({

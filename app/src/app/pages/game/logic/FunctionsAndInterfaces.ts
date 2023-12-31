@@ -1,4 +1,4 @@
-import { Application, Point, Sprite } from "pixi.js"
+import { Application, Container, Point, Sprite } from "pixi.js"
 
 export interface Position {
     x: number
@@ -15,15 +15,21 @@ export function getTrueClient(app: Application, event: MouseEvent) : Position {
 }
 
 export function raycastPoint(point: Point | Position, sprites: Sprite[]): Sprite[] {
-    const hitSprites: (Sprite)[] = [];
+    const hitSprites: (Sprite)[] = []
     for (const sprite of sprites) {
-        const spriteBounds = sprite.getBounds();
-        if (point.x >= spriteBounds.x &&
-            point.x <= spriteBounds.x + spriteBounds.width &&
-            point.y >= spriteBounds.y &&
-            point.y <= spriteBounds.y + spriteBounds.height) {
-        hitSprites.push(sprite);
+        if (sprite.containsPoint(point)) {
+            hitSprites.push(sprite)
         }
     }
-    return hitSprites;
+    return hitSprites
+}
+
+export function isSpriteInside(spriteInner: Sprite, spriteOuter: Sprite | Container, buffer: number = 0) {
+    let boundsInner = spriteInner.getBounds()
+    let boundsOuter = spriteOuter.getBounds()
+
+    return !(boundsInner.left < boundsOuter.left-buffer ||
+        boundsInner.top < boundsOuter.top-buffer ||
+        boundsOuter.right+buffer < boundsInner.right ||
+        boundsOuter.bottom+buffer < boundsInner.bottom)
 }

@@ -1,4 +1,5 @@
 import { Application, Container, Rectangle, Sprite, Texture } from "pixi.js"
+import gsap from 'gsap';
 
 export class Board extends Container {
 
@@ -48,6 +49,8 @@ export class Board extends Container {
             }
         }
     }
+
+    public getTileSize() {return this.tileSize * this.tileScale}
 
     public centerBoardVertically() {
         this.position.y = (this.app.renderer.screen.bottom - this.tileSize * this.tileScale * (this.tileNumber-1)) / 2

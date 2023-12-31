@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { Application, Rectangle, Sprite, Texture } from "pixi.js"
-import { Position, Size, getTrueClient, raycastPoint } from "./FunctionsAndInterfaces"
+import { Position, Size, getTrueClient, isSpriteInside, raycastPoint } from "./FunctionsAndInterfaces"
 import { Board } from "./Board"
 
 export class Ship extends Sprite {
@@ -13,6 +13,7 @@ export class Ship extends Sprite {
 
     private dragging = false
     private positionBeforeDragging: Position = {x: 0, y: 0}
+    private angleBeforeDragging: number = this.angle
     private moveEventCallback = (event: MouseEvent) => {
         const targetPosition = getTrueClient(this.app, event)
         gsap.to(this.position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
@@ -20,6 +21,7 @@ export class Ship extends Sprite {
     private dragStartCallback = (event: MouseEvent) => {
         this.dragging = true
         this.positionBeforeDragging = {x: this.position.x, y: this.position.y}
+        this.angleBeforeDragging = this.angle
         gsap.to((event.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
         const targetPosition = getTrueClient(this.app, event)
         gsap.to((event.currentTarget as Sprite).position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
@@ -32,7 +34,8 @@ export class Ship extends Sprite {
             gsap.to(this.position, {
                 x: hitObjects[0].position.x + hitObjects[0].parent.position.x,
                 y: hitObjects[0].position.y + hitObjects[0].parent.position.y,
-                duration: this.animationDuration
+                duration: this.animationDuration,
+                onComplete: () => this.checkForOutOfBoundsShip(this)
             })
         } else {
             gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration })
@@ -96,6 +99,13 @@ export class Ship extends Sprite {
             this.position.y - this.imageSize.height * this.imgaeScale / 2,
             this.imageSize.width * this.imgaeScale,
             this.imageSize.height * this.imgaeScale)
+    }
+
+    private checkForOutOfBoundsShip(thisShip: Sprite) {
+        if (!isSpriteInside(thisShip, this.myShipsBoard, this.myShipsBoard.getTileSize() / 2)) {
+            gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
+            gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration})
+        }
     }
 
 }

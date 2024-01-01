@@ -6,7 +6,7 @@ export class MainScene extends Container {
 
     private app: Application
     public myShipsBoard: Board
-    public longShip: Ship
+    public ships: Ship[] = []
 
     constructor(app: Application) {
         super()
@@ -23,15 +23,16 @@ export class MainScene extends Container {
         this.myShipsBoard.centerBoardVertically()
         this.myShipsBoard.setLeftPadding(20)
 
-        this.longShip = new Ship(
+        const longShip = new Ship(
             app,
             this.myShipsBoard,
             {width: 256, height: 768}, 
             0.28, 
             Texture.from("assets/long_ship.png"))
-        this.longShip.x = this.app.renderer.screen.right / 2
-        this.app.stage.addChild(this.longShip)
-        this.longShip.centerVertically()
+        this.ships.push(longShip)
+        longShip.x = this.app.renderer.screen.right / 2
+        app.stage.addChild(longShip)
+        longShip.centerVertically()
 
         // // Debug
         // const debugGraphics = new Graphics();

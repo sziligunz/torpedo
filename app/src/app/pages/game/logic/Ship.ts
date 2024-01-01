@@ -28,20 +28,22 @@ export class Ship extends Sprite {
         window.addEventListener('mousemove', this.moveEventCallback)
     }
     private dragEndCallback = (event: MouseEvent) => {
-        this.dragging = false
-        const hitObjects = raycastPoint(getTrueClient(this.app, event), this.myShipsBoard.children as Sprite[])
-        if (hitObjects.length >= 1) {
-            gsap.to(this.position, {
-                x: hitObjects[0].position.x + hitObjects[0].parent.position.x,
-                y: hitObjects[0].position.y + hitObjects[0].parent.position.y,
-                duration: this.animationDuration,
-                onComplete: () => this.checkForOutOfBoundsShip(this)
-            })
-        } else {
-            gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration })
+        if (this.dragging) {
+            this.dragging = false
+            const hitObjects = raycastPoint(getTrueClient(this.app, event), this.myShipsBoard.children as Sprite[])
+            if (hitObjects.length >= 1) {
+                gsap.to(this.position, {
+                    x: hitObjects[0].position.x + hitObjects[0].parent.position.x,
+                    y: hitObjects[0].position.y + hitObjects[0].parent.position.y,
+                    duration: this.animationDuration,
+                    onComplete: () => this.checkForOutOfBoundsShip(this)
+                })
+            } else {
+                gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration })
+            }
+            gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
+            window.removeEventListener('mousemove', this.moveEventCallback)
         }
-        gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
-        window.removeEventListener('mousemove', this.moveEventCallback)
     }
     private doneRotating = true
     private rotateCallback = (event: any) => {
@@ -105,6 +107,8 @@ export class Ship extends Sprite {
         if (!isSpriteInside(thisShip, this.myShipsBoard, this.myShipsBoard.getTileSize() / 2)) {
             gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
             gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration})
+        } else {
+            this.myShipsBoard.shipPlaced()
         }
     }
 

@@ -4,6 +4,10 @@ import { Queue } from "queue-typescript";
 import { randomBytes } from "crypto";
 import { Match } from "./Match";
 
+function getRoomHash(socket: Socket) {
+    return Array.from(socket.rooms.values())[1]
+}
+
 // Server
 const httpServer = createServer();
 const io = new Server(httpServer, {
@@ -43,16 +47,27 @@ io.on("connection", (socket) => {
         console.log(`Someone disconnected: ${socket.id}`)
     })
 
+    // On player is loaded
+    socket.on("loaded", () => {
+        console.log(`Player ${socket.data.userId} is loaded...`)
+        const roomHash = getRoomHash(socket)
+        if (roomHash) {
+            matches[roomHash].numberOfPlayersLoaded += 1
+            if (matches[roomHash].numberOfPlayersLoaded >= 2) {
+                io.to(roomHash).emit("init-game")
+                console.log(`Game initialization has started in room ${roomHash}`)
+            }
+        }
+    })
+
     // On player is ready
     socket.on("ready", () => {
         console.log(`Player ${socket.data.userId} is ready...`)
-        const roomHash = Array.from(socket.rooms.values())[1]
-        if (roomHash) {
-            matches[roomHash].numberOfPlayersReady += 1
-            if (matches[roomHash].numberOfPlayersReady >= 2) {
-                io.to(roomHash).emit("start-game")
-                console.log(`Game has started in room ${roomHash}`)
-            }
+        const roomHash = getRoomHash(socket)
+        matches[roomHash].numberOfPlayersReady += 1
+        if (matches[roomHash].numberOfPlayersReady >= 2) {
+            io.to(roomHash).emit("start-game")
+            console.log(`Game has started in room ${roomHash}`)
         }
     })
 });
@@ -85,7 +100,7 @@ async function tryMatchmaking() {
             first.socket.join(roomHash)
             second.socket.join(roomHash)
             io.to(roomHash).emit("start-game", roomHash)
-            matches[roomHash] = new Match(0)
+            matches[roomHash] = new Match()
             console.log(`Matched player ${first.userId} and ${second.userId} in room ${roomHash}`)
         }
     }

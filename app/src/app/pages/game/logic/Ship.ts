@@ -39,6 +39,7 @@ export class Ship extends Sprite {
                     onComplete: () => this.checkForOutOfBoundsShip(this)
                 })
             } else {
+                gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
                 gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration })
             }
             gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })

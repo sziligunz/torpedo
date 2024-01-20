@@ -38,7 +38,7 @@ export class GameComponent implements AfterViewInit {
         })
         this.appContainer.nativeElement.appendChild(this.app.view)
         this.mainScene = new MainScene(this.app)
-        this.readyHandler = this.mainScene.myShipsBoard.areShipsPlaced().subscribe((ready: boolean) => {if (ready) {this.ready()}})
+        this.readyHandler = this.mainScene.areShipsPlaced().subscribe((ready: boolean) => { if (ready) this.ready() })
         window.addEventListener('resize', (e: any) => {
             this.app.renderer.resize(
                 document.body.clientWidth,

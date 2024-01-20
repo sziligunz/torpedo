@@ -11,9 +11,6 @@ export class Board extends Container {
     private tileTexture: Texture
     private animationDuration: number
     public boardSize: number
-    private $allShipsPlacedDown: Subject<boolean> = new Subject<boolean>()
-    private numberOfPlacedShips = 0
-    private numberOfShips: number
 
     constructor(
         app: Application,
@@ -22,7 +19,6 @@ export class Board extends Container {
         tileScale: number = 0.3,
         tileTexture: Texture = Texture.from('assets/tile_water.png'),
         animationDuration = 0.2,
-        numberOfShips = 1
     ) {
         super()
 
@@ -33,7 +29,6 @@ export class Board extends Container {
         this.boardSize = tileSize * tileScale * tileNumber
         this.tileTexture = tileTexture
         this.animationDuration = animationDuration
-        this.numberOfShips = numberOfShips
 
         for (let i = 0; i < this.tileNumber; i++) {
             for (let j = 0; j < this.tileNumber; j++) {
@@ -70,12 +65,5 @@ export class Board extends Container {
             this.width + this.tileSize * this.tileScale,
             this.height + this.tileSize * this.tileScale)
     }
-
-    public shipPlaced() {
-        this.numberOfPlacedShips += 1
-        this.$allShipsPlacedDown.next(this.numberOfPlacedShips >= this.numberOfShips)
-    }
-
-    public areShipsPlaced() {return this.$allShipsPlacedDown}
 
 }

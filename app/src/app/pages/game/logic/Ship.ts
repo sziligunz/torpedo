@@ -1,7 +1,8 @@
 import gsap from 'gsap';
 import { Application, Rectangle, Sprite, Texture } from "pixi.js"
-import { Position, Size, getTrueClient, isSpriteInside, raycastPoint } from "./FunctionsAndInterfaces"
+import { Position, Size, getTrueClient, isIntersecting, isSpriteInside, raycastPoint } from "./FunctionsAndInterfaces"
 import { Board } from "./Board"
+import { ShipPlacementObserver } from './MainScene';
 
 export class Ship extends Sprite {
 
@@ -10,6 +11,8 @@ export class Ship extends Sprite {
     private imgaeScale: number
     private animationDuration: number
     private myShipsBoard: Board
+    private readonly allShips: Ship[] | null
+    private placed = false
 
     private dragging = false
     private positionBeforeDragging: Position = {x: 0, y: 0}
@@ -19,36 +22,42 @@ export class Ship extends Sprite {
         gsap.to(this.position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
     }
     private dragStartCallback = (event: MouseEvent) => {
-        this.dragging = true
-        this.positionBeforeDragging = {x: this.position.x, y: this.position.y}
-        this.angleBeforeDragging = this.angle
-        gsap.to((event.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
-        const targetPosition = getTrueClient(this.app, event)
-        gsap.to((event.currentTarget as Sprite).position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
-        window.addEventListener('mousemove', this.moveEventCallback)
+        if (!this.dragging) {
+            this.dragging = true
+            this.positionBeforeDragging = {x: this.position.x, y: this.position.y}
+            this.angleBeforeDragging = this.angle
+            gsap.to((event.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
+            const targetPosition = getTrueClient(this.app, event)
+            gsap.to((event.currentTarget as Sprite).position, { x: targetPosition.x, y: targetPosition.y, duration: this.animationDuration })
+            window.addEventListener('mousemove', this.moveEventCallback)
+        }
     }
     private dragEndCallback = (event: MouseEvent) => {
         if (this.dragging) {
-            this.dragging = false
             const hitObjects = raycastPoint(getTrueClient(this.app, event), this.myShipsBoard.children as Sprite[])
             if (hitObjects.length >= 1) {
                 gsap.to(this.position, {
                     x: hitObjects[0].position.x + hitObjects[0].parent.position.x,
                     y: hitObjects[0].position.y + hitObjects[0].parent.position.y,
                     duration: this.animationDuration,
-                    onComplete: () => this.checkForOutOfBoundsShip(this)
+                    onComplete: () => {
+                        if (this.checkForOutOfBoundsShip() && this.checkForShipCollision()) {
+                            this.placed = true
+                            ShipPlacementObserver.$triggerShipPlacementCheck.next()
+                        }
+                        this.dragging = false
+                    }
                 })
             } else {
                 gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
                 gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration })
             }
-            gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
             window.removeEventListener('mousemove', this.moveEventCallback)
         }
     }
     private doneRotating = true
     private rotateCallback = (event: any) => {
-        if (this.doneRotating && this.dragging && event.key === 'r') {
+        if (this.doneRotating && this.dragging && (event.key === 'r' || event.key === 'R')) {
             this.doneRotating = false
             gsap.to(this, { angle: this.angle+90, duration: this.animationDuration, onComplete: e => {this.doneRotating = true}})
         }
@@ -60,6 +69,7 @@ export class Ship extends Sprite {
         imageSize: Size,
         imgaeScale: number,
         imageTexture: Texture,
+        allShips: Ship[] | null,
         animationDuration: number = 0.2
     ) {
         super(imageTexture)
@@ -68,16 +78,17 @@ export class Ship extends Sprite {
         this.imgaeScale = imgaeScale
         this.animationDuration = animationDuration
         this.myShipsBoard = myShipsBoard
+        this.allShips = allShips
 
         this.scale.set(this.imgaeScale)
         this.anchor.set(0.5, 0.5)
         this.eventMode = 'static'
-        this.addEventListener('mouseover', e => {
+        this.addEventListener('mouseover', () => {
             if (!this.dragging)
-                gsap.to((e.currentTarget as Sprite).scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
+                gsap.to(this.scale, { x: this.imgaeScale + 0.05, y: this.imgaeScale + 0.05, duration: this.animationDuration })
         })
-        this.addEventListener('mouseout', e => {
-            gsap.to((e.currentTarget as Sprite).scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
+        this.addEventListener('mouseout', () => {
+            gsap.to(this.scale, { x: this.imgaeScale, y: this.imgaeScale, duration: this.animationDuration })
         })
     }
 
@@ -104,13 +115,28 @@ export class Ship extends Sprite {
             this.imageSize.height * this.imgaeScale)
     }
 
-    private checkForOutOfBoundsShip(thisShip: Sprite) {
-        if (!isSpriteInside(thisShip, this.myShipsBoard, this.myShipsBoard.getTileSize() / 2)) {
+    private checkForOutOfBoundsShip() {
+        if (!isSpriteInside(this, this.myShipsBoard, this.myShipsBoard.getTileSize() / 2)) {
             gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
             gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration})
-        } else {
-            this.myShipsBoard.shipPlaced()
+            return false;
         }
+        return true;
     }
+    
+    private checkForShipCollision() {
+        if (this.allShips == null) return false
+        let res = true
+        this.allShips.forEach(ship => {
+            if (this != ship && isIntersecting(this, ship, this.app)) {
+                gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
+                gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration})
+                res = false;
+            }
+        })
+        return res;
+    }
+
+    public isPlaced() { return this.placed }
 
 }

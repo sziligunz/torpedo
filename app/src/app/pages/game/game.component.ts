@@ -32,11 +32,18 @@ export class GameComponent implements AfterViewInit {
     private readyHandler!: Subscription
 
     ngAfterViewInit(): void {
+        //////////
+        // APP //
+        //////////
         this.app = new Application({
             width: document.body.clientWidth,
             height: document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
         })
         this.appContainer.nativeElement.appendChild(this.app.view)
+
+        ////////////////
+        // MAIN SCENE //
+        ////////////////
         this.mainScene = new MainScene(this.app)
         this.readyHandler = this.mainScene.areShipsPlaced().subscribe((ready: boolean) => { if (ready) this.ready() })
         window.addEventListener('resize', (e: any) => {
@@ -47,12 +54,11 @@ export class GameComponent implements AfterViewInit {
             this.mainScene.resize()
             this.app.render()
         })
-
         this.socketService.socket.emit('loaded')
     }
 
     initGame() {
-        this.mainScene.ships.forEach(x => x.makeDraggable())
+        this.mainScene.makeShipsDraggable()
     }
 
     ready() {

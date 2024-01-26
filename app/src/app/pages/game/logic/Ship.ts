@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { Application, Rectangle, Sprite, Texture } from "pixi.js"
 import { Position, Size, getTrueClient, isIntersecting, isSpriteInside, raycastPoint } from "./FunctionsAndInterfaces"
-import { Board } from "./Board"
+import { ShipBoard } from "./Board"
 import { ShipPlacementObserver } from './MainScene';
 
 export class Ship extends Sprite {
@@ -10,7 +10,7 @@ export class Ship extends Sprite {
     private imageSize: Size
     private imgaeScale: number
     private animationDuration: number
-    private myShipsBoard: Board
+    private myShipsBoard: ShipBoard
     private readonly allShips: Ship[] | null
     private placed = false
 
@@ -65,7 +65,7 @@ export class Ship extends Sprite {
 
     constructor(
         app: Application,
-        myShipsBoard: Board,
+        myShipsBoard: ShipBoard,
         imageSize: Size,
         imgaeScale: number,
         imageTexture: Texture,

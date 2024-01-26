@@ -1,6 +1,6 @@
 import { Application, Texture, Container, Sprite, Point, Graphics } from 'pixi.js';
 import { Ship } from './Ship';
-import { Board } from './Board';
+import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs';
 
@@ -13,7 +13,8 @@ export class ShipPlacementObserver {
 export class MainScene extends Container {
 
     private app: Application
-    public myShipsBoard: Board
+    public myShipsBoard: ShipBoard
+    public attackBoard: AttackBoard
     public ships: Ship[] = []
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
 
@@ -25,7 +26,7 @@ export class MainScene extends Container {
         // SHIPS BOARD //
         /////////////////
 
-        this.myShipsBoard = new Board(
+        this.myShipsBoard = new ShipBoard(
             this.app,
             256,
             8,
@@ -135,6 +136,23 @@ export class MainScene extends Container {
         ShipPlacementObserver.$triggerShipPlacementCheck.subscribe(() => {
             this.$areAllShipsPutDown.next(this.ships.map(x => x.isPlaced()).reduce((prevs, curr) => prevs && curr, true))
         })
+                
+        //////////////////
+        // ATTACK BOARD //
+        //////////////////
+
+        this.attackBoard = new AttackBoard(
+            this.app,
+            256,
+            8,
+            0.3,
+            Texture.from('assets/tile_water.png'))
+        this.app.stage.addChild(this.attackBoard)
+        this.attackBoard.centerBoardVertically()
+        this.attackBoard.setLeftPadding(20)
+        this.attackBoard.makeInteractable()
+        this.attackBoard.hideBoard()
+        this.myShipsBoard.hideBoard()
 
         // // Debug
         // const debugGraphics = new Graphics();
@@ -147,9 +165,35 @@ export class MainScene extends Container {
         // })
     }
 
+    public hideShipsBoard() {
+        this.myShipsBoard.hideBoard()
+    }
+    
+    public showShipsBoard() {
+        this.myShipsBoard.showBoard()
+    }
+
+    public hideAttackBoard() {
+        this.attackBoard.hideBoard()
+    }
+    
+    public showAttackBoard() {
+        this.attackBoard.showBoard()
+    }
+
+    public makeShipsDraggable() {
+        this.ships.forEach(x => x.makeDraggable())
+    }
+
+    public makeShipsNonDraggable() {
+        this.ships.forEach(x => x.makeNonDraggable())
+    }
+
     public resize() {
         this.myShipsBoard.centerBoardVertically()
         this.myShipsBoard.setLeftPadding(20)
+        this.attackBoard.centerBoardVertically()
+        this.attackBoard.setLeftPadding(20)
     }
 
     public areShipsPlaced(): Observable<boolean> { return this.$areAllShipsPutDown }

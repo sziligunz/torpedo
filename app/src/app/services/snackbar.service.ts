@@ -21,9 +21,9 @@ export class SnackbarService {
         return this.createSnackbar(message, "replay")
     }
 
-    private createSnackbar(message: string, actionLable: string) {
+    private createSnackbar(message: string, actionLabel: string) {
         return this.snackbar.openFromComponent(SnackbarComponent, {
-            duration: 5000, data: [message, actionLable]
+            duration: 5000, data: [message, actionLabel]
         })
     }
 }

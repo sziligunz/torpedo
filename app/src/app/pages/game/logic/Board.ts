@@ -1,6 +1,7 @@
 import { Application, Container, FederatedPointerEvent, Rectangle, Sprite, Texture, Filter, ColorMatrixFilter } from "pixi.js"
 import gsap from 'gsap';
-import { getTrueClient, raycastPoint } from "./FunctionsAndInterfaces";
+import { Position, getTrueClient, raycastPoint } from "./FunctionsAndInterfaces";
+import { Subject } from "rxjs";
 
 abstract class Board extends Container {
 
@@ -86,16 +87,19 @@ export class ShipBoard extends Board {
 
     private previousePosition: number = 0
     public hideBoard(offset: number = (this.tileSize * this.tileScale)) {
+        this.previousePosition = this.position.x
         const targetX = -this.getBounds().width + offset
-        gsap.to(this.position, {x: targetX, duration: this.animationDuration})
         this.filters = [this.grayFilter]
-        gsap.to(this, {alpha: 0.75, duration: this.animationDuration})
+        return gsap.to(this.position, {x: targetX, duration: this.animationDuration, onComplete: () => {
+            gsap.to(this, {alpha: 0.75, duration: this.animationDuration})
+        }})
     }
 
     public showBoard() {
-        gsap.to(this.position, {x: this.previousePosition, duration: this.animationDuration})
         this.filters = []
-        gsap.to(this, {alpha: 1, duration: this.animationDuration})
+        return gsap.to(this.position, {x: this.previousePosition, duration: this.animationDuration, onComplete: () => {
+            gsap.to(this, {alpha: 1, duration: this.animationDuration})
+        }})
     }
 
 }
@@ -103,6 +107,7 @@ export class ShipBoard extends Board {
 export class AttackBoard extends Board {
 
     private grayFilter: ColorMatrixFilter
+    private $attackResults: Subject<Position>
 
     constructor(
         app: Application,
@@ -110,6 +115,7 @@ export class AttackBoard extends Board {
         tileNumber: number = 8,
         tileScale: number = 0.3,
         tileTexture: Texture = Texture.from('assets/tile_water.png'),
+        attackResults: Subject<Position>,
         animationDuration = 0.2,
     ) {
         super(app, tileSize, tileNumber, tileScale, tileTexture, animationDuration)
@@ -132,6 +138,7 @@ export class AttackBoard extends Board {
         }
         this.grayFilter = new ColorMatrixFilter()
         this.grayFilter.blackAndWhite(true)
+        this.$attackResults = attackResults
     }
 
     private getIndexFromChild(target: Sprite) {
@@ -149,8 +156,11 @@ export class AttackBoard extends Board {
     private attackHandler = (e: MouseEvent) => {
         const hits = raycastPoint(getTrueClient(this.app, e), this.children as Sprite[])
         if (hits.length > 0) {
-            this.getIndexFromChild(hits[0] as Sprite)
-            // ATTACK HAS BEEN CHOOSEN
+            const res = this.getIndexFromChild(hits[0] as Sprite)
+            if (res != null)
+                this.$attackResults.next(res)
+            else
+                console.error("Couldn't find target tile during attack phase!")
         }
     }
 
@@ -166,17 +176,19 @@ export class AttackBoard extends Board {
     public hideBoard(offset: number = (this.tileSize * this.tileScale)) {
         this.previousePosition = this.position.y
         const targetY = -this.getBounds().height + offset
-        gsap.to(this.position, {y: targetY, duration: this.animationDuration})
         this.filters = [this.grayFilter]
-        gsap.to(this, {alpha: 0.75, duration: this.animationDuration})
         this.makeNonInteractable()
+        return gsap.to(this.position, {y: targetY, duration: this.animationDuration, onComplete: () => {
+            gsap.to(this, {alpha: 0.75, duration: this.animationDuration})
+        }})
     }
 
     public showBoard() {
-        gsap.to(this.position, {y: this.previousePosition, duration: this.animationDuration})
-        this.filters = []
-        gsap.to(this, {alpha: 1, duration: this.animationDuration})
         this.makeInteractable()
+        this.filters = []
+        return gsap.to(this.position, {y: this.previousePosition, duration: this.animationDuration, onComplete: () => {
+            gsap.to(this, {alpha: 1, duration: this.animationDuration})
+        }})
     }
 
 }

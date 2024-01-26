@@ -139,4 +139,14 @@ export class Ship extends Sprite {
 
     public isPlaced() { return this.placed }
 
+    private previousPosition: number = 0
+    public hideShip(timeOffset: number = 0) {
+        this.previousPosition = this.position.x
+        gsap.to(this.position, {x: -this.app.renderer.width, delay: timeOffset, duration: 1})
+    }
+    
+    public showShip(timeOffset: number = 0) {
+        gsap.to(this.position, {x: this.previousPosition, delay: timeOffset, duration: 1})
+    }
+
 }

@@ -3,6 +3,7 @@ import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs';
+import { Position } from './FunctionsAndInterfaces';
 
 export class ShipPlacementObserver {
 
@@ -17,10 +18,29 @@ export class MainScene extends Container {
     public attackBoard: AttackBoard
     public ships: Ship[] = []
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
+    private $attackResults: Subject<Position> = new Subject<Position>()
 
     constructor(app: Application) {
         super()
         this.app = app;
+
+        //////////////////
+        // ATTACK BOARD //
+        //////////////////
+
+        this.attackBoard = new AttackBoard(
+            this.app,
+            256,
+            8,
+            0.3,
+            Texture.from('assets/tile_water.png'),
+            this.$attackResults)
+        const offset = this.attackBoard.tileSize * this.attackBoard.tileScale
+        this.app.stage.addChild(this.attackBoard)
+        this.attackBoard.centerBoardVertically()
+        this.attackBoard.setLeftPadding(offset)
+        this.attackBoard.makeInteractable()
+        this.attackBoard.hideBoard()
 
         /////////////////
         // SHIPS BOARD //
@@ -35,7 +55,7 @@ export class MainScene extends Container {
         )
         this.app.stage.addChild(this.myShipsBoard)
         this.myShipsBoard.centerBoardVertically()
-        this.myShipsBoard.setLeftPadding(20)
+        this.myShipsBoard.setLeftPadding(offset)
 
         ////////////////
         // SHIP-1 1X3 //
@@ -108,6 +128,7 @@ export class MainScene extends Container {
             null)
         ship4SideShip.makeNonDraggable()
         ship4SideShip.anchor.set(0.5,0.5)
+        ship4SideShip.eventMode = "none"
         ship4.addChild(ship4SideShip)
         ship4SideShip.position.set(-this.myShipsBoard.getTileSize()*2, -this.myShipsBoard.getTileSize()*3)
         app.stage.addChild(ship4)
@@ -136,23 +157,6 @@ export class MainScene extends Container {
         ShipPlacementObserver.$triggerShipPlacementCheck.subscribe(() => {
             this.$areAllShipsPutDown.next(this.ships.map(x => x.isPlaced()).reduce((prevs, curr) => prevs && curr, true))
         })
-                
-        //////////////////
-        // ATTACK BOARD //
-        //////////////////
-
-        this.attackBoard = new AttackBoard(
-            this.app,
-            256,
-            8,
-            0.3,
-            Texture.from('assets/tile_water.png'))
-        this.app.stage.addChild(this.attackBoard)
-        this.attackBoard.centerBoardVertically()
-        this.attackBoard.setLeftPadding(20)
-        this.attackBoard.makeInteractable()
-        this.attackBoard.hideBoard()
-        this.myShipsBoard.hideBoard()
 
         // // Debug
         // const debugGraphics = new Graphics();
@@ -166,19 +170,29 @@ export class MainScene extends Container {
     }
 
     public hideShipsBoard() {
-        this.myShipsBoard.hideBoard()
+        let timeOffset = 0
+        for (const ship of this.ships) {
+            ship.hideShip(timeOffset)
+            timeOffset += 0.1
+        }
+        return this.myShipsBoard.hideBoard()
     }
     
     public showShipsBoard() {
-        this.myShipsBoard.showBoard()
+        let timeOffset = 0
+        for (const ship of this.ships) {
+            ship.showShip(timeOffset)
+            timeOffset += 0.1
+        }
+        return this.myShipsBoard.showBoard()
     }
 
     public hideAttackBoard() {
-        this.attackBoard.hideBoard()
+        return this.attackBoard.hideBoard()
     }
     
     public showAttackBoard() {
-        this.attackBoard.showBoard()
+        return this.attackBoard.showBoard()
     }
 
     public makeShipsDraggable() {
@@ -190,11 +204,12 @@ export class MainScene extends Container {
     }
 
     public resize() {
-        this.myShipsBoard.centerBoardVertically()
-        this.myShipsBoard.setLeftPadding(20)
-        this.attackBoard.centerBoardVertically()
-        this.attackBoard.setLeftPadding(20)
+        const offset = this.myShipsBoard.tileSize * this.myShipsBoard.tileScale
+        this.myShipsBoard.setLeftPadding(offset)
+        this.attackBoard.setLeftPadding(offset)
     }
 
     public areShipsPlaced(): Observable<boolean> { return this.$areAllShipsPutDown }
+
+    public attackResult(): Observable<Position> { return this.$attackResults }
 }

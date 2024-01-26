@@ -25,11 +25,12 @@ export class GameComponent implements AfterViewInit {
             return
         }
         this.socketService.socket.on('init-game', () => this.initGame())
-        this.socketService.socket.on('start-game', () => this.startGame())
+        this.socketService.socket.on('my-turn', () => this.executeTurn())
     }
 
     private mainScene!: MainScene
     private readyHandler!: Subscription
+    private attackHandler!: Subscription
 
     ngAfterViewInit(): void {
         //////////
@@ -64,9 +65,15 @@ export class GameComponent implements AfterViewInit {
     ready() {
         this.socketService.socket.emit('ready')
         this.readyHandler.unsubscribe()
+        this.mainScene.makeShipsNonDraggable()
     }
 
-    startGame() {
-        
+    executeTurn() {
+        this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
+        this.attackHandler = this.mainScene.attackResult().subscribe(position => {
+            this.attackHandler.unsubscribe()
+            // get attack result from other player
+            // play animation according to attack result => this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard())
+        })
     }
 }

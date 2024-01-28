@@ -1,6 +1,6 @@
 import { Application, Container, FederatedPointerEvent, Rectangle, Sprite, Texture, Filter, ColorMatrixFilter } from "pixi.js"
 import gsap from 'gsap';
-import { Position, getTrueClient, raycastPoint } from "./FunctionsAndInterfaces";
+import { Position, getIndexFromChild, getTrueClient, raycastPoint } from "./FunctionsAndInterfaces";
 import { Subject } from "rxjs";
 
 abstract class Board extends Container {
@@ -141,22 +141,10 @@ export class AttackBoard extends Board {
         this.$attackResults = attackResults
     }
 
-    private getIndexFromChild(target: Sprite) {
-        let i = 0, j = 0
-        for (const child of this.children) {
-            if (child == target) break
-            if (++j >= this.tileNumber) {
-                j = 0
-                i++
-            }
-        }
-        return (i >= this.tileNumber) ? null : {x: i, y: j};
-    }
-
     private attackHandler = (e: MouseEvent) => {
         const hits = raycastPoint(getTrueClient(this.app, e), this.children as Sprite[])
         if (hits.length > 0) {
-            const res = this.getIndexFromChild(hits[0] as Sprite)
+            const res = getIndexFromChild(hits[0] as Sprite, this.children, this.tileNumber)
             if (res != null)
                 this.$attackResults.next(res)
             else

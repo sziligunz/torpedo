@@ -11,8 +11,9 @@ export class Ship extends Sprite {
     private imgaeScale: number
     private animationDuration: number
     private myShipsBoard: ShipBoard
-    private readonly allShips: Ship[] | null
+    private readonly allShips: Map<Ship, Position[] | null> | null
     private placed = false
+    private health = 0
 
     private dragging = false
     private positionBeforeDragging: Position = {x: 0, y: 0}
@@ -43,7 +44,7 @@ export class Ship extends Sprite {
                     onComplete: () => {
                         if (this.checkForOutOfBoundsShip() && this.checkForShipCollision()) {
                             this.placed = true
-                            ShipPlacementObserver.$triggerShipPlacementCheck.next()
+                            ShipPlacementObserver.$triggerShipPlacementCheck.next(this)
                         }
                         this.dragging = false
                     }
@@ -69,7 +70,8 @@ export class Ship extends Sprite {
         imageSize: Size,
         imgaeScale: number,
         imageTexture: Texture,
-        allShips: Ship[] | null,
+        allShips: Map<Ship, Position[] | null> | null,
+        health: number,
         animationDuration: number = 0.2
     ) {
         super(imageTexture)
@@ -79,6 +81,7 @@ export class Ship extends Sprite {
         this.animationDuration = animationDuration
         this.myShipsBoard = myShipsBoard
         this.allShips = allShips
+        this.health = health
 
         this.scale.set(this.imgaeScale)
         this.anchor.set(0.5, 0.5)
@@ -127,7 +130,7 @@ export class Ship extends Sprite {
     private checkForShipCollision() {
         if (this.allShips == null) return false
         let res = true
-        this.allShips.forEach(ship => {
+        this.allShips.forEach((_, ship) => {
             if (this != ship && isIntersecting(this, ship, this.app)) {
                 gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
                 gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration})
@@ -147,6 +150,14 @@ export class Ship extends Sprite {
     
     public showShip(timeOffset: number = 0) {
         gsap.to(this.position, {x: this.previousPosition, delay: timeOffset, duration: 1})
+    }
+
+    public hitShip() {
+        this.health--
+    }
+
+    public isSunken() {
+        return this.health <= 0
     }
 
 }

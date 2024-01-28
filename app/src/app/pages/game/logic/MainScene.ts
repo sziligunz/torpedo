@@ -3,11 +3,11 @@ import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs';
-import { Position } from './FunctionsAndInterfaces';
+import { Position, getShipsOccupiedPositions } from './FunctionsAndInterfaces';
 
 export class ShipPlacementObserver {
 
-    public static $triggerShipPlacementCheck: Subject<void> = new Subject<void>()
+    public static $triggerShipPlacementCheck: Subject<Ship> = new Subject<Ship>()
 
 }
 
@@ -16,7 +16,7 @@ export class MainScene extends Container {
     private app: Application
     public myShipsBoard: ShipBoard
     public attackBoard: AttackBoard
-    public ships: Ship[] = []
+    public ships: Map<Ship, Position[] | null> = new Map()
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
     private $attackResults: Subject<Position> = new Subject<Position>()
 
@@ -67,8 +67,9 @@ export class MainScene extends Container {
             {width: 116, height: 401}, 
             0.5, 
             Texture.from("assets/ship1.png"),
-            this.ships)
-        this.ships.push(ship1)
+            this.ships,
+            3)
+        this.ships.set(ship1, null)
         ship1.x = this.app.renderer.screen.right / 2
         app.stage.addChild(ship1)
         ship1.centerVertically()
@@ -83,8 +84,9 @@ export class MainScene extends Container {
             {width: 116, height: 401}, 
             0.5, 
             Texture.from("assets/ship2.png"),
-            this.ships)
-        this.ships.push(ship2)
+            this.ships,
+            3)
+        this.ships.set(ship2, null)
         ship2.x = this.app.renderer.screen.right / 2
         app.stage.addChild(ship2)
         ship2.centerVertically()
@@ -99,8 +101,9 @@ export class MainScene extends Container {
             {width: 116, height: 401}, 
             0.45, 
             Texture.from("assets/ship3.png"),
-            this.ships)
-        this.ships.push(ship3)
+            this.ships,
+            2)
+        this.ships.set(ship3, null)
         ship3.x = this.app.renderer.screen.right / 2
         ship3.anchor.y = 0.25
         app.stage.addChild(ship3)
@@ -116,8 +119,9 @@ export class MainScene extends Container {
             {width: 116, height: 401}, 
             0.5, 
             Texture.from("assets/ship4.png"),
-            this.ships)
-        this.ships.push(ship4)
+            this.ships,
+            5)
+        this.ships.set(ship4, null)
         ship4.x = this.app.renderer.screen.right / 2
         const ship4SideShip = new Ship(
             app,
@@ -125,7 +129,8 @@ export class MainScene extends Container {
             {width: 116, height: 401},
             0.95,
             Texture.from("assets/ship3.png"),
-            null)
+            null,
+            0)
         ship4SideShip.makeNonDraggable()
         ship4SideShip.anchor.set(0.5,0.5)
         ship4SideShip.eventMode = "none"
@@ -144,8 +149,9 @@ export class MainScene extends Container {
             {width: 116, height: 401}, 
             0.5, 
             Texture.from("assets/ship5.png"),
-            this.ships)
-        this.ships.push(ship5)
+            this.ships,
+            3)
+        this.ships.set(ship5, null)
         ship5.x = this.app.renderer.screen.right / 2
         app.stage.addChild(ship5)
         ship5.centerVertically()
@@ -154,8 +160,10 @@ export class MainScene extends Container {
         // SHIP PLACEMENT TRIGGER //
         ////////////////////////////
 
-        ShipPlacementObserver.$triggerShipPlacementCheck.subscribe(() => {
-            this.$areAllShipsPutDown.next(this.ships.map(x => x.isPlaced()).reduce((prevs, curr) => prevs && curr, true))
+        ShipPlacementObserver.$triggerShipPlacementCheck.subscribe((ship: Ship) => {
+            this.ships.set(ship, getShipsOccupiedPositions(ship, this.myShipsBoard))
+            console.log(this.ships)
+            this.$areAllShipsPutDown.next(Array.from(this.ships.keys()).map(x => x.isPlaced()).reduce((prevs, curr) => prevs && curr, true))
         })
 
         // // Debug
@@ -171,7 +179,7 @@ export class MainScene extends Container {
 
     public hideShipsBoard() {
         let timeOffset = 0
-        for (const ship of this.ships) {
+        for (const ship of this.ships.keys()) {
             ship.hideShip(timeOffset)
             timeOffset += 0.1
         }
@@ -180,7 +188,7 @@ export class MainScene extends Container {
     
     public showShipsBoard() {
         let timeOffset = 0
-        for (const ship of this.ships) {
+        for (const ship of this.ships.keys()) {
             ship.showShip(timeOffset)
             timeOffset += 0.1
         }
@@ -196,11 +204,11 @@ export class MainScene extends Container {
     }
 
     public makeShipsDraggable() {
-        this.ships.forEach(x => x.makeDraggable())
+        Array.from(this.ships.keys()).forEach(x => x.makeDraggable())
     }
 
     public makeShipsNonDraggable() {
-        this.ships.forEach(x => x.makeNonDraggable())
+        Array.from(this.ships.keys()).forEach(x => x.makeNonDraggable())
     }
 
     public resize() {

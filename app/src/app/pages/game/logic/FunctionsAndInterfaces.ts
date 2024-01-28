@@ -1,4 +1,5 @@
-import { Application, Container, Graphics, Point, Rectangle, Sprite } from "pixi.js"
+import { Application, Container, DisplayObject, Graphics, Point, Rectangle, Sprite } from "pixi.js"
+import { ShipBoard } from "./Board"
 
 export interface Position {
     x: number
@@ -67,4 +68,34 @@ export function isIntersecting(spriteA: Sprite, spriteB: Sprite, app: Applicatio
         }
     }
     return false
+}
+
+export function getIndexFromChild(target: Sprite, sprites: DisplayObject[], range: number) {
+    let i = 0, j = 0
+    for (const child of sprites) {
+        if (child == target) break
+        if (++j >= range) {
+            j = 0
+            i++
+        }
+    }
+    return (i >= range) ? null : {x: i, y: j};
+}
+
+export function getShipsOccupiedPositions(targetShip: Sprite, shipsBoard: ShipBoard) : Position[] {
+    const res: Position[] = []
+    for (const child of shipsBoard.children) {
+        const hitObject = raycastPoint(
+            shipsBoard.toGlobal(child.position),
+            (targetShip.children.length > 0) ? [targetShip].concat(targetShip.children as Sprite[]) : [targetShip]
+        )
+        if (hitObject.length > 0) {
+            const coords = getIndexFromChild(child as Sprite, shipsBoard.children, shipsBoard.tileNumber)
+            if (coords != null)
+                res.push(coords)
+            else 
+                console.error("Couldn't find coordinates of targetShip after ship placement!")
+        }
+    }
+    return res
 }

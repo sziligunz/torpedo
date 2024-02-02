@@ -4,6 +4,7 @@ import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
 import { MainScene } from './logic/MainScene';
 import { Subscription } from 'rxjs';
+import { Position } from './logic/FunctionsAndInterfaces';
 
 @Component({
     selector: 'app-game',
@@ -26,6 +27,8 @@ export class GameComponent implements AfterViewInit {
         }
         this.socketService.socket.on('init-game', () => this.initGame())
         this.socketService.socket.on('my-turn', () => this.executeTurn())
+        this.socketService.socket.on('evaluate-attack', (position: Position) => this.evaluateAttack(position))
+        this.socketService.socket.on('evaluate-attack-result', (hit: boolean) => this.processEvaluatedAttackResult(hit))
     }
 
     private mainScene!: MainScene
@@ -68,12 +71,26 @@ export class GameComponent implements AfterViewInit {
         this.mainScene.makeShipsNonDraggable()
     }
 
+    private hitTargetPosition: Position | undefined
     executeTurn() {
         this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
         this.attackHandler = this.mainScene.attackResult().subscribe(position => {
             this.attackHandler.unsubscribe()
-            // get attack result from other player
-            // play animation according to attack result => this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard())
+            this.hitTargetPosition = position
+            this.socketService.socket.emit("evaluate-attack", position)
         })
+    }
+
+    evaluateAttack(position: Position) {
+        this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position))
+    }
+    
+    processEvaluatedAttackResult(hit: boolean) {
+        this.mainScene.putMarkerOntoAttackBoard(hit, this.hitTargetPosition!)
+        if (hit) {
+            this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+        } else {
+            this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+        }
     }
 }

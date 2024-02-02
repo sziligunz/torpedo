@@ -2,8 +2,9 @@ import { Application, Texture, Container, Sprite, Point, Graphics } from 'pixi.j
 import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
-import { Observable } from 'rxjs';
-import { Position, getShipsOccupiedPositions } from './FunctionsAndInterfaces';
+import { Observable, last } from 'rxjs';
+import { Position, getShipsOccupiedPositions, raycastPoint } from './FunctionsAndInterfaces';
+import { HitMarker, Marker, MissMarker } from './Marker';
 
 export class ShipPlacementObserver {
 
@@ -17,6 +18,8 @@ export class MainScene extends Container {
     public myShipsBoard: ShipBoard
     public attackBoard: AttackBoard
     public ships: Map<Ship, Position[] | null> = new Map()
+    public myShipsBoardMarkers: Map<Marker, Ship | null> = new Map()
+    public attackBoardMarkers: Marker[] = []
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
     private $attackResults: Subject<Position> = new Subject<Position>()
 
@@ -162,7 +165,6 @@ export class MainScene extends Container {
 
         ShipPlacementObserver.$triggerShipPlacementCheck.subscribe((ship: Ship) => {
             this.ships.set(ship, getShipsOccupiedPositions(ship, this.myShipsBoard))
-            console.log(this.ships)
             this.$areAllShipsPutDown.next(Array.from(this.ships.keys()).map(x => x.isPlaced()).reduce((prevs, curr) => prevs && curr, true))
         })
 
@@ -183,7 +185,13 @@ export class MainScene extends Container {
             ship.hideShip(timeOffset)
             timeOffset += 0.1
         }
-        return this.myShipsBoard.hideBoard()
+        let lastAnim: gsap.core.Tween | undefined
+        for (const marker of this.myShipsBoardMarkers.keys()) {
+            lastAnim = marker.hideMarker(timeOffset)
+            timeOffset += 0.1
+        }
+        const defAnim = this.myShipsBoard.hideBoard()
+        return (lastAnim) ? lastAnim : defAnim
     }
     
     public showShipsBoard() {
@@ -192,15 +200,35 @@ export class MainScene extends Container {
             ship.showShip(timeOffset)
             timeOffset += 0.1
         }
-        return this.myShipsBoard.showBoard()
+        let lastAnim: gsap.core.Tween | undefined
+        for (const marker of this.myShipsBoardMarkers.keys()) {
+            lastAnim = marker.showMarker(timeOffset)
+            timeOffset += 0.1
+        }
+        const defAnim = this.myShipsBoard.showBoard()
+        return (lastAnim) ? lastAnim : defAnim
     }
 
     public hideAttackBoard() {
-        return this.attackBoard.hideBoard()
+        let timeOffset = 0
+        let lastAnim: gsap.core.Tween | undefined
+        for (const marker of this.attackBoardMarkers) {
+            lastAnim = marker.hideMarker(timeOffset, true)
+            timeOffset += 0.1
+        }
+        const defAnim = this.attackBoard.hideBoard()
+        return (lastAnim) ? lastAnim : defAnim
     }
     
     public showAttackBoard() {
-        return this.attackBoard.showBoard()
+        let timeOffset = 0
+        let lastAnim: gsap.core.Tween | undefined
+        for (const marker of this.attackBoardMarkers) {
+            lastAnim = marker.showMarker(timeOffset, true)
+            timeOffset += 0.1
+        }
+        const defAnim = this.attackBoard.showBoard()
+        return (lastAnim) ? lastAnim : defAnim
     }
 
     public makeShipsDraggable() {
@@ -220,4 +248,50 @@ export class MainScene extends Container {
     public areShipsPlaced(): Observable<boolean> { return this.$areAllShipsPutDown }
 
     public attackResult(): Observable<Position> { return this.$attackResults }
+
+    public evaluateAttack(position: Position) {
+        let res = false
+        const worldPosition = this.myShipsBoard.toGlobal(this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].position.clone())
+        let allShip = Array.from(this.ships.keys())
+        for (const ship of Array.from(this.ships.keys())) {
+            if (ship.children.length > 0)
+                allShip = allShip.concat(ship.children as Ship[])
+        }
+        const hitShips = raycastPoint(worldPosition, allShip)
+        if (hitShips.length > 0) {
+            res = true
+            let hitShip = (hitShips[0] as Ship)
+            if (hitShip.parent instanceof Ship)
+            hitShip = hitShip.parent
+            hitShip.hitShip()
+            const hitMarker = new HitMarker(this.app, 0.1)
+            hitMarker.position = worldPosition
+            this.myShipsBoardMarkers.set(hitMarker, hitShip)
+            this.app.stage.addChild(hitMarker)
+            if (hitShip.isSunken()) this.destoryShip(hitShip)
+        } else {
+            const missMarker = new MissMarker(this.app, 0.1)
+            missMarker.position = worldPosition
+            this.myShipsBoardMarkers.set(missMarker, null)
+            this.app.stage.addChild(missMarker)
+        }
+        return res
+    }
+
+    private destoryShip(target: Sprite) {
+        // TODO: improve animation for destroying ship
+        target.alpha = 0.5
+        for (const pair of this.myShipsBoardMarkers) {
+            if (pair[1] == target) pair[0].alpha = 0.5
+        }
+    }
+
+    public putMarkerOntoAttackBoard(hit: boolean, position: Position) {
+        const worldPosition = this.myShipsBoard.toGlobal(this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].position)
+        console.log(worldPosition)
+        let marker: Marker = (hit) ? new HitMarker(this.app, 0.1) : new MissMarker(this.app, 0.1)
+        marker.position = worldPosition
+        this.attackBoardMarkers.push(marker)
+        this.app.stage.addChild(marker)
+    }
 }

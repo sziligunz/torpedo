@@ -70,6 +70,36 @@ io.on("connection", (socket) => {
             console.log(`Game has started in room ${roomHash}`)
         }
     })
+
+    // On request for attack results
+    socket.on("evaluate-attack", (position) => {
+        const roomHash = getRoomHash(socket)
+        if (matches[roomHash].player1 == socket) {
+            io.to(matches[roomHash].player2.id).emit("evaluate-attack", position)
+        } else {
+            io.to(matches[roomHash].player1.id).emit("evaluate-attack", position)
+        }
+    })
+    
+    // On post for attack results
+    socket.on("evaluate-attack-result", (hit: boolean) => {
+        const roomHash = getRoomHash(socket)
+        if (matches[roomHash].player1 == socket) {
+            io.to(matches[roomHash].player2.id).emit("evaluate-attack-result", hit)
+        } else {
+            io.to(matches[roomHash].player1.id).emit("evaluate-attack-result", hit)
+        }
+    })
+
+    // On end-turn
+    socket.on("end-turn", () => {
+        const roomHash = getRoomHash(socket)
+        if (matches[roomHash].player1 == socket) {
+            io.to(matches[roomHash].player2.id).emit("my-turn")
+        } else {
+            io.to(matches[roomHash].player1.id).emit("my-turn")
+        }
+    })
 });
 
 // Start server

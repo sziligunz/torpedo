@@ -2,6 +2,7 @@ import { Application, Container, FederatedPointerEvent, Rectangle, Sprite, Textu
 import gsap from 'gsap';
 import { Position, getIndexFromChild, getTrueClient, raycastPoint } from "./FunctionsAndInterfaces";
 import { Subject } from "rxjs";
+import { Marker } from "./Marker";
 
 abstract class Board extends Container {
 
@@ -108,6 +109,7 @@ export class AttackBoard extends Board {
 
     private grayFilter: ColorMatrixFilter
     private $attackResults: Subject<Position>
+    private readonly attackMarkers: Marker[]
 
     constructor(
         app: Application,
@@ -116,9 +118,11 @@ export class AttackBoard extends Board {
         tileScale: number = 0.3,
         tileTexture: Texture = Texture.from('assets/tile_water.png'),
         attackResults: Subject<Position>,
+        attackMarkers: Marker[],
         animationDuration = 0.2,
     ) {
         super(app, tileSize, tileNumber, tileScale, tileTexture, animationDuration)
+        this.attackMarkers = attackMarkers
         this.eventMode = 'static'
         for (let i = 0; i < this.tileNumber; i++) {
             for (let j = 0; j < this.tileNumber; j++) {
@@ -142,8 +146,8 @@ export class AttackBoard extends Board {
     }
 
     private attackHandler = (e: MouseEvent) => {
-        const hits = raycastPoint(getTrueClient(this.app, e), this.children as Sprite[])
-        if (hits.length > 0) {
+        const hits = raycastPoint(getTrueClient(this.app, e), (this.children as Sprite[]).concat(this.attackMarkers as Sprite[]))
+        if (hits.length == 1) {
             const res = getIndexFromChild(hits[0] as Sprite, this.children, this.tileNumber)
             if (res != null)
                 this.$attackResults.next(res)

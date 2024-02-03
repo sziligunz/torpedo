@@ -37,7 +37,8 @@ export class MainScene extends Container {
             8,
             0.3,
             Texture.from('assets/tile_water.png'),
-            this.$attackResults)
+            this.$attackResults,
+            this.attackBoardMarkers)
         const offset = this.attackBoard.tileSize * this.attackBoard.tileScale
         this.app.stage.addChild(this.attackBoard)
         this.attackBoard.centerBoardVertically()

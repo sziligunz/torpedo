@@ -82,12 +82,12 @@ io.on("connection", (socket) => {
     })
     
     // On post for attack results
-    socket.on("evaluate-attack-result", (hit: boolean) => {
+    socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean) => {
         const roomHash = getRoomHash(socket)
         if (matches[roomHash].player1 == socket) {
-            io.to(matches[roomHash].player2.id).emit("evaluate-attack-result", hit)
+            io.to(matches[roomHash].player2.id).emit("evaluate-attack-result", hit, allShipDestroyed)
         } else {
-            io.to(matches[roomHash].player1.id).emit("evaluate-attack-result", hit)
+            io.to(matches[roomHash].player1.id).emit("evaluate-attack-result", hit, allShipDestroyed)
         }
     })
 
@@ -98,6 +98,16 @@ io.on("connection", (socket) => {
             io.to(matches[roomHash].player2.id).emit("my-turn")
         } else {
             io.to(matches[roomHash].player1.id).emit("my-turn")
+        }
+    })
+
+    // On won
+    socket.on("won", () => {
+        const roomHash = getRoomHash(socket)
+        if (matches[roomHash].player1 == socket) {
+            io.to(matches[roomHash].player2.id).emit("lost")
+        } else {
+            io.to(matches[roomHash].player1.id).emit("lost")
         }
     })
 });

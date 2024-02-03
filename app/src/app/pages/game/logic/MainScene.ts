@@ -293,4 +293,8 @@ export class MainScene extends Container {
         this.attackBoardMarkers.push(marker)
         this.app.stage.addChild(marker)
     }
+
+    public areAllShipsSunken() {
+        return Array.from(this.ships.keys()).map(x => x.isSunken()).reduce((prev, curr) => prev && curr, true)
+    }
 }

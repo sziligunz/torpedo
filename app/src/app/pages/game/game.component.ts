@@ -28,7 +28,8 @@ export class GameComponent implements AfterViewInit {
         this.socketService.socket.on('init-game', () => this.initGame())
         this.socketService.socket.on('my-turn', () => this.executeTurn())
         this.socketService.socket.on('evaluate-attack', (position: Position) => this.evaluateAttack(position))
-        this.socketService.socket.on('evaluate-attack-result', (hit: boolean) => this.processEvaluatedAttackResult(hit))
+        this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean) => this.processEvaluatedAttackResult(hit, allShipDestroyed))
+        this.socketService.socket.on('lost', () => this.gameLost())
     }
 
     private mainScene!: MainScene
@@ -72,8 +73,10 @@ export class GameComponent implements AfterViewInit {
     }
 
     private hitTargetPosition: Position | undefined
-    executeTurn() {
-        this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
+    executeTurn(reExecute: boolean = false) {
+        if (!reExecute) {
+            this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
+        }
         this.attackHandler = this.mainScene.attackResult().subscribe(position => {
             this.attackHandler.unsubscribe()
             this.hitTargetPosition = position
@@ -82,17 +85,32 @@ export class GameComponent implements AfterViewInit {
     }
 
     evaluateAttack(position: Position) {
-        this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position))
+        this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position), this.mainScene.areAllShipsSunken())
     }
     
-    processEvaluatedAttackResult(hit: boolean) {
+    processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean) {
         this.mainScene.putMarkerOntoAttackBoard(hit, this.hitTargetPosition!)
-        setTimeout(() => {
+        if (allShipDestroyed) {
+            setTimeout(() => {
+                this.gameWon()
+                this.socketService.socket.emit("won")
+            }, 1000)
+        } else {
             if (hit) {
-                this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+                this.executeTurn(true)
             } else {
-                this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+                setTimeout(() => {
+                    this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+                }, 2000)
             }
-        }, 2000)
+        }
+    }
+
+    private gameWon() {
+        console.log("YOU HAVE WON THE GAME")
+    }
+    
+    private gameLost() {
+        console.log("YOU HAVE LOST THE GAME")
     }
 }

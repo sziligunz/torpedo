@@ -251,7 +251,7 @@ export class MainScene extends Container {
 
     public evaluateAttack(position: Position) {
         let res = false
-        const worldPosition = this.myShipsBoard.toGlobal(this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].position.clone())
+        const worldPosition = this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].toGlobal(new Point(0, 0))
         let allShip = Array.from(this.ships.keys())
         for (const ship of Array.from(this.ships.keys())) {
             if (ship.children.length > 0)
@@ -287,8 +287,7 @@ export class MainScene extends Container {
     }
 
     public putMarkerOntoAttackBoard(hit: boolean, position: Position) {
-        const worldPosition = this.myShipsBoard.toGlobal(this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].position)
-        console.log(worldPosition)
+        const worldPosition = this.attackBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].toGlobal(new Point(0, 0))
         let marker: Marker = (hit) ? new HitMarker(this.app, 0.1) : new MissMarker(this.app, 0.1)
         marker.position = worldPosition
         this.attackBoardMarkers.push(marker)

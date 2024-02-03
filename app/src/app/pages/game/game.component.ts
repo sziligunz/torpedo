@@ -87,10 +87,12 @@ export class GameComponent implements AfterViewInit {
     
     processEvaluatedAttackResult(hit: boolean) {
         this.mainScene.putMarkerOntoAttackBoard(hit, this.hitTargetPosition!)
-        if (hit) {
-            this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
-        } else {
-            this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
-        }
+        setTimeout(() => {
+            if (hit) {
+                this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+            } else {
+                this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+            }
+        }, 2000)
     }
 }

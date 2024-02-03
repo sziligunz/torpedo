@@ -12,18 +12,18 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
-  declarations: [
-    SigninComponent
-  ],
-  imports: [
-    CommonModule,
-    SigninRoutingModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSnackBarModule
-  ]
+    declarations: [
+        SigninComponent
+    ],
+    imports: [
+        CommonModule,
+        SigninRoutingModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSnackBarModule
+    ]
 })
 export class SigninModule { }

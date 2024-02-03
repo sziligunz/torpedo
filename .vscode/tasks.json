@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "app",
+			"problemMatcher": [
+				"$gulp-tsc"
+			],
+			"label": "npm: start - app",
+			"detail": "npx ng serve --host 0.0.0.0"
+		},
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "server",
+			"problemMatcher": [
+				"$gulp-tsc"
+			],
+			"label": "npm: start - server",
+			"detail": "echo \"Compiling server...\" && tsc server.ts && echo \"Starting server...\" && echo \"============================\" && node server.js"
+		}
+	]
+}

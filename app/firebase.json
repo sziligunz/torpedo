@@ -1,9 +1,7 @@
 {
-  "hosting": [
-    {
-      "target": "app",
-      "source": ".",
-      "frameworksBackend": {}
-    }
-  ]
+  "hosting": [{
+    "target": "app",
+    "source": ".",
+    "frameworksBackend": {}
+  }]
 }

@@ -3,19 +3,19 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SignoutComponent } from './signout.component';
 
 describe('SignoutComponent', () => {
-  let component: SignoutComponent;
-  let fixture: ComponentFixture<SignoutComponent>;
+    let component: SignoutComponent;
+    let fixture: ComponentFixture<SignoutComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [SignoutComponent]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [SignoutComponent]
+        });
+        fixture = TestBed.createComponent(SignoutComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    fixture = TestBed.createComponent(SignoutComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

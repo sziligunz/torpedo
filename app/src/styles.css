@@ -3,4 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.mdc-notched-outline__notch { border-right: none; }
+.mdc-notched-outline__notch {
+  border-right: none;
+}

@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "server"
+		},
+		{
+			"path": "app",
+		},
+		{
+			"path": "riports"
+		}
+	],
+	"settings": {
+		"editor.tabSize": 4,
+		"editor.detectIndentation": false
+	}
+}

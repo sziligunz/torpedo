@@ -5,7 +5,7 @@ import { SigninComponent } from './signin.component';
 const routes: Routes = [{ path: '', component: SigninComponent }];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule]
 })
 export class SigninRoutingModule { }

@@ -15,7 +15,6 @@ export class SocketService {
     constructor() {
         this.socket = io(environment.socketServerConfig.url)
 
-        this.socket.on("mm-lobby-count", (mm_lobby) => console.log(mm_lobby))
         this.socket.on("start-game", (roomHash) => {
             this.roomHash = roomHash
             this.$roomHash.next(roomHash)

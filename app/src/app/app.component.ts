@@ -46,7 +46,7 @@ export class AppComponent {
         // if (location.pathname == '/')
         //   location.reload()
         // else
-        this.router.navigateByUrl('/home')
+        this.router.navigateByUrl('/home').then(() => location.reload())
     }
 
     logout() {

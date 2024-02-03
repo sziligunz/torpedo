@@ -20,7 +20,7 @@ const io = new Server(httpServer, {
 // Vars
 const debug = false
 const mmLobby: Queue<{ userId: string, socket: Socket }> = new Queue()
-const matches: {[roomHash: string]: Match} = {}
+const matches: Map<string, Match> = new Map()
 
 // Server events
 io.on("connection", (socket) => {
@@ -52,8 +52,8 @@ io.on("connection", (socket) => {
         console.log(`Player ${socket.data.userId} is loaded...`)
         const roomHash = getRoomHash(socket)
         if (roomHash) {
-            matches[roomHash].numberOfPlayersLoaded += 1
-            if (matches[roomHash].numberOfPlayersLoaded >= 2) {
+            matches.get(roomHash)!.numberOfPlayersLoaded += 1
+            if (matches.get(roomHash)!.numberOfPlayersLoaded >= 2) {
                 io.to(roomHash).emit("init-game")
                 console.log(`Game initialization has started in room ${roomHash}`)
             }
@@ -64,9 +64,9 @@ io.on("connection", (socket) => {
     socket.on("ready", () => {
         console.log(`Player ${socket.data.userId} is ready...`)
         const roomHash = getRoomHash(socket)
-        matches[roomHash].numberOfPlayersReady += 1
-        if (matches[roomHash].numberOfPlayersReady >= 2) {
-            io.to(matches[roomHash].player1.id).emit("my-turn")
+        matches.get(roomHash)!.numberOfPlayersReady += 1
+        if (matches.get(roomHash)!.numberOfPlayersReady >= 2) {
+            io.to(matches.get(roomHash)!.player1.id).emit("my-turn")
             console.log(`Game has started in room ${roomHash}`)
         }
     })
@@ -74,41 +74,42 @@ io.on("connection", (socket) => {
     // On request for attack results
     socket.on("evaluate-attack", (position) => {
         const roomHash = getRoomHash(socket)
-        if (matches[roomHash].player1 == socket) {
-            io.to(matches[roomHash].player2.id).emit("evaluate-attack", position)
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack", position)
         } else {
-            io.to(matches[roomHash].player1.id).emit("evaluate-attack", position)
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack", position)
         }
     })
     
     // On post for attack results
     socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean) => {
         const roomHash = getRoomHash(socket)
-        if (matches[roomHash].player1 == socket) {
-            io.to(matches[roomHash].player2.id).emit("evaluate-attack-result", hit, allShipDestroyed)
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack-result", hit, allShipDestroyed)
         } else {
-            io.to(matches[roomHash].player1.id).emit("evaluate-attack-result", hit, allShipDestroyed)
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack-result", hit, allShipDestroyed)
         }
     })
 
     // On end-turn
     socket.on("end-turn", () => {
         const roomHash = getRoomHash(socket)
-        if (matches[roomHash].player1 == socket) {
-            io.to(matches[roomHash].player2.id).emit("my-turn")
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("my-turn")
         } else {
-            io.to(matches[roomHash].player1.id).emit("my-turn")
+            io.to(matches.get(roomHash)!.player1.id).emit("my-turn")
         }
     })
 
     // On won
     socket.on("won", () => {
         const roomHash = getRoomHash(socket)
-        if (matches[roomHash].player1 == socket) {
-            io.to(matches[roomHash].player2.id).emit("lost")
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("lost")
         } else {
-            io.to(matches[roomHash].player1.id).emit("lost")
+            io.to(matches.get(roomHash)!.player1.id).emit("lost")
         }
+        matches.delete(roomHash)
     })
 });
 
@@ -140,7 +141,7 @@ async function tryMatchmaking() {
                 first.socket.join(roomHash)
                 second.socket.join(roomHash)
                 io.to(roomHash).emit("start-game", roomHash)
-                matches[roomHash] = new Match(first.socket, second.socket)
+                matches.set(roomHash, new Match(first.socket, second.socket))
                 console.log(`Matched player ${first.userId} and ${second.userId} in room ${roomHash}`)
             }
         }

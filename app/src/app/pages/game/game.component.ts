@@ -1,19 +1,21 @@
-import { Component, ElementRef, AfterViewInit, ViewChild, booleanAttribute } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, ElementRef, AfterViewInit, ViewChild, booleanAttribute, OnInit } from '@angular/core';
+import { Route, Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
 import { MainScene } from './logic/MainScene';
 import { Subscription } from 'rxjs';
 import { Position } from './logic/FunctionsAndInterfaces';
+import { PirateCaptain } from './logic/Captain';
 
 @Component({
     selector: 'app-game',
     templateUrl: './game.component.html',
     styleUrls: ['./game.component.css']
 })
-export class GameComponent implements AfterViewInit {
+export class GameComponent implements AfterViewInit, OnInit {
 
     private app!: Application
+    private captain!: string
 
     @ViewChild("appContainer") appContainer!: ElementRef;
 
@@ -30,6 +32,12 @@ export class GameComponent implements AfterViewInit {
         this.socketService.socket.on('evaluate-attack', (position: Position) => this.evaluateAttack(position))
         this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean) => this.processEvaluatedAttackResult(hit, allShipDestroyed))
         this.socketService.socket.on('lost', () => this.gameLost())
+    }
+
+    ngOnInit(): void {
+        const lastState = this.router.lastSuccessfulNavigation?.extras.state;
+        if (lastState && lastState['data']) this.captain = lastState['data']['captain']
+        console.log(this.captain)
     }
 
     private mainScene!: MainScene
@@ -49,7 +57,7 @@ export class GameComponent implements AfterViewInit {
         ////////////////
         // MAIN SCENE //
         ////////////////
-        this.mainScene = new MainScene(this.app)
+        this.mainScene = new MainScene(this.app, this.captain)
         this.readyHandler = this.mainScene.areShipsPlaced().subscribe((ready: boolean) => { if (ready) this.ready() })
         window.addEventListener('resize', (e: any) => {
             this.app.renderer.resize(

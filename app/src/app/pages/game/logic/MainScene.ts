@@ -5,6 +5,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { Observable, last } from 'rxjs';
 import { Position, getShipsOccupiedPositions, raycastPoint } from './FunctionsAndInterfaces';
 import { HitMarker, Marker, MissMarker } from './Marker';
+import { Captain, PirateCaptain } from './Captain';
 
 export class ShipPlacementObserver {
 
@@ -15,6 +16,7 @@ export class ShipPlacementObserver {
 export class MainScene extends Container {
 
     private app: Application
+    private captain: Captain
     public myShipsBoard: ShipBoard
     public attackBoard: AttackBoard
     public ships: Map<Ship, Position[] | null> = new Map()
@@ -23,7 +25,7 @@ export class MainScene extends Container {
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
     private $attackResults: Subject<Position> = new Subject<Position>()
 
-    constructor(app: Application) {
+    constructor(app: Application, captainString: string) {
         super()
         this.app = app;
 
@@ -169,15 +171,21 @@ export class MainScene extends Container {
             this.$areAllShipsPutDown.next(Array.from(this.ships.keys()).map(x => x.isPlaced()).reduce((prevs, curr) => prevs && curr, true))
         })
 
-        // // Debug
-        // const debugGraphics = new Graphics();
-        // app.stage.addChild(debugGraphics);
-        // this.app.ticker.add((t) => {
-        //     const bounds = ship4.getBounds();
-        //     debugGraphics.clear();
-        //     debugGraphics.lineStyle(2, 0xFF0000); // Set line color and thickness
-        //     debugGraphics.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-        // })
+        /////////////
+        // CAPTAIN //
+        /////////////
+
+        switch(captainString) {
+            case 'pirate':
+                this.captain = new PirateCaptain(0.2)
+                break;
+            default:
+                this.captain = new PirateCaptain(0.2)
+                break;
+        }
+        this.captain.position.x = this.app.renderer.screen.right - 100
+        this.captain.position.y = this.app.renderer.screen.bottom / 2
+        this.app.stage.addChild(this.captain)
     }
 
     public hideShipsBoard() {

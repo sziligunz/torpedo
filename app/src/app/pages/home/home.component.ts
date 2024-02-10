@@ -28,9 +28,7 @@ export class HomeComponent {
         socketService.$roomHash.pipe(first()).subscribe(_ => {
             this.spinSpinner = false
             this.snackbarService.createCheck("Match Found")
-                .afterDismissed().subscribe(_ => {
-                    if (location.pathname == "/home") this.router.navigateByUrl("/game")
-                })
+                .afterDismissed().subscribe(_ => this.router.navigateByUrl("/game", {state: {data: {captain: "pirate"}}}))
         })
     }
 

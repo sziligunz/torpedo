@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js"
+import { ColorMatrixFilter, Sprite } from "pixi.js"
 import { Position } from "./FunctionsAndInterfaces"
 
 export enum Direction {
@@ -12,43 +12,97 @@ export abstract class Ability {
 
     abilityName: string
     abilityDescription: string
+    private hoverSprites: Sprite[] = []
+    private greenFilter: ColorMatrixFilter = new ColorMatrixFilter()
 
     constructor(abilityName: string, abilityDescription: string) {
         this.abilityName = abilityName
         this.abilityDescription = abilityDescription
+        this.greenFilter.matrix = [
+            0, 0, 0, 0, 0,
+            0, 1, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 1, 0,
+        ]
     }
 
-    protected getPatterMatchedSquers(origin: Position, relativeCoordinates: Position[], direction: Direction) {
-        
+    protected abstract getAbilityPositions(): Position[]
+
+    private getPatterMatchedTiles(abilityOriginCoordinates: Position, abilityRelativeCoordinates: Position[], direction: Direction, searchSource: Sprite[], searchBound: number) {
+        switch(direction) {
+            case Direction.LEFT:
+                break;
+            case Direction.UP:
+                abilityRelativeCoordinates = abilityRelativeCoordinates.map(pos => ({x: pos.y, y: -pos.x}))
+                break;
+            case Direction.RIGHT:
+                abilityRelativeCoordinates = abilityRelativeCoordinates.map(pos => ({x: -pos.x, y: -pos.y}))
+                break;
+            case Direction.DOWN:
+                abilityRelativeCoordinates = abilityRelativeCoordinates.map(pos => ({x: -pos.y, y: pos.x}))
+                break;
+            default:
+                break;
+        }
+        return abilityRelativeCoordinates
+            .filter(pos =>
+                (pos.x + abilityOriginCoordinates.x < searchBound) &&
+                (pos.y + abilityOriginCoordinates.y < searchBound) &&
+                (0 <= pos.x + abilityOriginCoordinates.x) &&
+                (0 <= pos.y + abilityOriginCoordinates.y))
+            .map(pos => ({x: pos.x + abilityOriginCoordinates.x, y: pos.y + abilityOriginCoordinates.y}))
+            .map(pos => searchSource[pos.y * searchBound + pos.x])
     }
 
-    abstract hoverAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[]) : void
+    private applyHoverEffect() {
+        this.hoverSprites.forEach(x => x.filters = [this.greenFilter])
+    }
 
-    abstract performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[]): void
+    removeHoverEffect() {
+        this.hoverSprites.forEach(x => x.filters = [])
+    }
+
+    hoverAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number) {
+        const targetPositionClone = structuredClone(targetPosition)
+        let abilityPositionsClone = structuredClone(this.getAbilityPositions())
+        this.hoverSprites = this.getPatterMatchedTiles(targetPositionClone, abilityPositionsClone, direction, tileSprites, tileNumber)
+        this.applyHoverEffect()
+    }
+
+    performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number) {
+        // const targetPositionClone = structuredClone(targetPosition)
+        // let abilityPositionsClone = structuredClone(this.getAbilityPositions())
+        // this.hoverSprites = this.getPatterMatchedTiles(targetPositionClone, abilityPositionsClone, direction, tileSprites, tileNumber)
+        // TODO: perform attack on tiles
+        console.log(`Attack was performed on tiles: ${this.hoverSprites}`)
+    }
 
 }
 
 export class BombardAbility extends Ability {
-    
+
     constructor() {
         super(
             "Bombrad",
-            "Bombards a wide are with his cannons, but not far since we are in the 1400's..."
+            "Bombards a wide are with his cannons, but not far since he is from the 1400's..."
             )
     }
-        
-    override hoverAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[]): void {
-        throw new Error("Method not implemented.")
-    }
 
-    override performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[]): void {
-        console.log(`Bombard Ability should be performed at ${targetPosition}`)
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -1, y: -2},
+            {x: -2, y: -2},
+            {x: -1, y: 0},
+            {x: -2, y: 0},
+            {x: -1, y: 2},
+            {x: -2, y: 2}
+        ]
     }
 
 }
 
 export class SpyglassAbility extends Ability {
-    
+
     constructor() {
         super(
             "Spyglass",
@@ -56,12 +110,14 @@ export class SpyglassAbility extends Ability {
             )
     }
 
-    override hoverAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[]): void {
-        throw new Error("Method not implemented.")
-    }
-
-    override performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[]): void {
-        console.log(`Spyglass Ability should be performed at ${targetPosition}`)
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -1, y: 0},
+            {x: -2, y: 0},
+            {x: -3, y: 0},
+            {x: -4, y: 0},
+            {x: -5, y: 0},
+        ]
     }
 
 }

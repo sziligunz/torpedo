@@ -288,10 +288,9 @@ export class MainScene extends Container {
     }
 
     private destoryShip(target: Sprite) {
-        // TODO: improve animation for destroying ship
-        target.alpha = 0.5
+        gsap.to(target, {alpha: 0.5, animationDuration: 1})
         for (const pair of this.myShipsBoardMarkers) {
-            if (pair[1] == target) pair[0].alpha = 0.5
+            if (pair[1] == target) gsap.to(pair[0], {alpha: 0.5, animationDuration: 1})
         }
     }
 

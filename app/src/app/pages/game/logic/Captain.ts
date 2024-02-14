@@ -1,5 +1,4 @@
-import { Sprite } from "@pixi/sprite"
-import { Texture } from "pixi.js"
+import { Texture, Sprite } from "pixi.js"
 import { Subject } from "rxjs"
 import { Ability, BombardAbility, SpyglassAbility } from "./Ability"
 

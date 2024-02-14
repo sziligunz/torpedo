@@ -1,11 +1,10 @@
 import { Component, ElementRef, AfterViewInit, ViewChild, booleanAttribute, OnInit } from '@angular/core';
-import { Route, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
 import { MainScene } from './logic/MainScene';
 import { Subscription } from 'rxjs';
 import { Position } from './logic/FunctionsAndInterfaces';
-import { PirateCaptain } from './logic/Captain';
 
 @Component({
     selector: 'app-game',

@@ -186,6 +186,13 @@ export class MainScene extends Container {
         this.captain.position.x = this.app.renderer.screen.right - 100
         this.captain.position.y = this.app.renderer.screen.bottom / 2
         this.app.stage.addChild(this.captain)
+
+        ////////////////////////////
+        // CAPTAIN ACTION BUTTONS //
+        ////////////////////////////
+
+
+
     }
 
     public hideShipsBoard() {

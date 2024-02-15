@@ -49,7 +49,8 @@ export class GameComponent implements AfterViewInit, OnInit {
         //////////
         this.app = new Application({
             width: document.body.clientWidth,
-            height: document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
+            height: document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight,
+            antialias: true
         })
         this.appContainer.nativeElement.appendChild(this.app.view)
 

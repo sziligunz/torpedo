@@ -6,6 +6,7 @@ import { Observable, last } from 'rxjs';
 import { Position, getShipsOccupiedPositions, raycastPoint } from './FunctionsAndInterfaces';
 import { HitMarker, Marker, MissMarker } from './Marker';
 import { Captain, PirateCaptain } from './Captain';
+import { Button } from './Button';
 
 export class ShipPlacementObserver {
 
@@ -191,7 +192,11 @@ export class MainScene extends Container {
         // CAPTAIN ACTION BUTTONS //
         ////////////////////////////
 
-
+        const button = new Button("Reveal")
+        button.position.x = this.app.renderer.screen.width - 200
+        button.position.y = this.app.renderer.screen.bottom / 2 + 150
+        button.addCallback((e: MouseEvent) => console.log("reveal pressed"))
+        this.app.stage.addChild(button)
 
     }
 

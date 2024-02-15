@@ -12,7 +12,7 @@ export abstract class Ability {
 
     abilityName: string
     abilityDescription: string
-    private hoverSprites: Sprite[] = []
+    protected hoverSprites: Sprite[] = []
     private greenFilter: ColorMatrixFilter = new ColorMatrixFilter()
 
     constructor(abilityName: string, abilityDescription: string) {
@@ -69,13 +69,7 @@ export abstract class Ability {
         this.applyHoverEffect()
     }
 
-    performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number) {
-        // const targetPositionClone = structuredClone(targetPosition)
-        // let abilityPositionsClone = structuredClone(this.getAbilityPositions())
-        // this.hoverSprites = this.getPatterMatchedTiles(targetPositionClone, abilityPositionsClone, direction, tileSprites, tileNumber)
-        // TODO: perform attack on tiles
-        console.log(`Attack was performed on tiles: ${this.hoverSprites}`)
-    }
+    abstract performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number): void
 
 }
 
@@ -98,6 +92,14 @@ export class BombardAbility extends Ability {
             {x: -2, y: 2}
         ]
     }
+    
+    override performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number): void {
+        // const targetPositionClone = structuredClone(targetPosition)
+        // let abilityPositionsClone = structuredClone(this.getAbilityPositions())
+        // this.hoverSprites = this.getPatterMatchedTiles(targetPositionClone, abilityPositionsClone, direction, tileSprites, tileNumber)
+        // TODO: perform attack on tiles
+        console.log(`Bombard was performed on tiles: ${this.hoverSprites}`)
+    }
 
 }
 
@@ -118,6 +120,14 @@ export class SpyglassAbility extends Ability {
             {x: -4, y: 0},
             {x: -5, y: 0},
         ]
+    }
+
+    override performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number): void {
+        // const targetPositionClone = structuredClone(targetPosition)
+        // let abilityPositionsClone = structuredClone(this.getAbilityPositions())
+        // this.hoverSprites = this.getPatterMatchedTiles(targetPositionClone, abilityPositionsClone, direction, tileSprites, tileNumber)
+        // TODO: perform attack on tiles
+        console.log(`Spyglass was performed on tiles: ${this.hoverSprites}`)
     }
 
 }

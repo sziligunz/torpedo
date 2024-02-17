@@ -3,10 +3,12 @@ import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
 import { Observable, last } from 'rxjs';
-import { Position, getShipsOccupiedPositions, raycastPoint } from './FunctionsAndInterfaces';
+import { Position, getIndexFromChild, getShipsOccupiedPositions, getTrueClient, raycastPoint } from './FunctionsAndInterfaces';
 import { HitMarker, Marker, MissMarker } from './Marker';
 import { Captain, PirateCaptain } from './Captain';
 import { Button } from './Button';
+import { Ability, Direction } from './Ability';
+import gsap from 'gsap';
 
 export class ShipPlacementObserver {
 
@@ -25,6 +27,9 @@ export class MainScene extends Container {
     public attackBoardMarkers: Marker[] = []
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
     private $attackResults: Subject<Position> = new Subject<Position>()
+    private attackButton: Button
+    private revealButton: Button
+    private $attackEvaluationRequester: Subject<Position[]> = new Subject<Position[]>()
 
     constructor(app: Application, captainString: string) {
         super()
@@ -184,19 +189,23 @@ export class MainScene extends Container {
                 this.captain = new PirateCaptain(0.2)
                 break;
         }
-        this.captain.position.x = this.app.renderer.screen.right - 100
-        this.captain.position.y = this.app.renderer.screen.bottom / 2
+        this.captain.position.x = this.app.renderer.screen.right - 250
+        this.captain.position.y = this.app.renderer.screen.bottom / 2 - 50
         this.app.stage.addChild(this.captain)
 
         ////////////////////////////
         // CAPTAIN ACTION BUTTONS //
         ////////////////////////////
 
-        const button = new Button("Reveal")
-        button.position.x = this.app.renderer.screen.width - 200
-        button.position.y = this.app.renderer.screen.bottom / 2 + 150
-        button.addCallback((e: MouseEvent) => console.log("reveal pressed"))
-        this.app.stage.addChild(button)
+        this.revealButton = new Button("REVEAL")
+        this.revealButton.position.x = this.app.renderer.screen.width - 450
+        this.revealButton.position.y = this.app.renderer.screen.bottom / 2 + 50
+        this.app.stage.addChild(this.revealButton)
+        
+        this.attackButton = new Button("ATTACK")
+        this.attackButton.position.x = this.app.renderer.screen.width - 225
+        this.attackButton.position.y = this.app.renderer.screen.bottom / 2 + 50
+        this.app.stage.addChild(this.attackButton)
 
     }
 
@@ -317,4 +326,99 @@ export class MainScene extends Container {
     public areAllShipsSunken() {
         return Array.from(this.ships.keys()).map(x => x.isSunken()).reduce((prev, curr) => prev && curr, true)
     }
+
+    private activeAbility: Ability | null = null
+    private lastMouseMoveEvent: MouseEvent | null = null
+    private captainMouseMoveHoverAbility = (e: MouseEvent) => {
+        this.attackBoard.children.forEach(x => x.filters = [])
+        const hitObjects = raycastPoint(getTrueClient(this.app, e), this.attackBoard.children as Sprite[])
+        if (hitObjects.length >= 1) {
+            const pos = getIndexFromChild(hitObjects[0], this.attackBoard.children, this.attackBoard.tileNumber)
+            if (pos != null) {
+                this.lastMouseMoveEvent = e
+                this.activeAbility!.hoverAbility(
+                    pos,
+                    this.activeAbilityDirection!,
+                    this.attackBoard.children as Sprite[],
+                    this.attackBoard.tileNumber
+                )
+            } 
+        } else {
+            this.lastMouseMoveEvent = null
+        }
+    }
+
+    private activeAbilityDirection: Direction | null = null
+    private captainRotateAbility = (e: any) => {
+        if (e.key === 'r' || e.key === 'R') {
+            this.activeAbilityDirection = (this.activeAbilityDirection! >= 3) ? 0 : this.activeAbilityDirection!+1
+            if (this.lastMouseMoveEvent != null) {
+                this.captainMouseMoveHoverAbility(this.lastMouseMoveEvent)
+            }
+        }
+    }
+
+    private captainClickAbility = (e: MouseEvent) => {
+        this.attackBoard.children.forEach(x => x.filters = [])
+        const hitObjects = raycastPoint(getTrueClient(this.app, e), this.attackBoard.children as Sprite[])
+        if (hitObjects.length >= 1) {
+            const pos = getIndexFromChild(hitObjects[0], this.attackBoard.children, this.attackBoard.tileNumber)
+            if (pos != null) {
+                const targetTiles = this.activeAbility!.performAbility(
+                    pos,
+                    this.activeAbilityDirection!,
+                    this.attackBoard.children as Sprite[],
+                    this.attackBoard.tileNumber,
+                    Array.from(this.ships.keys())
+                )
+                this.disableCaptainButtons()
+                this.captain.abilityPoints = Math.max(this.captain.abilityPoints - this.activeAbility!.abilityCost, 0)
+                this.removeCaptainAbilityListeners()
+                this.attackBoard.makeInteractable()
+                // ATTACK ABILITY SPECIAL CASE
+                this.$attackEvaluationRequester.next(targetTiles)
+            } 
+        }
+    }
+
+    private captainRevealPressedCallback = (e: MouseEvent) => {
+        this.activeAbility = this.captain.revealAbility
+        this.activeAbilityDirection = 0
+        this.lastMouseMoveEvent = null
+        this.attackBoard.makeNonInteractable()
+        window.addEventListener("mousemove", this.captainMouseMoveHoverAbility)
+        window.addEventListener("keydown", this.captainRotateAbility)
+        window.addEventListener("mouseup", this.captainClickAbility)
+    }
+    
+    private captainAttackPressedCallback = (e: MouseEvent) => {
+        this.activeAbility = this.captain.attackAbility
+        this.activeAbilityDirection = 0
+        this.lastMouseMoveEvent = null
+        this.attackBoard.makeNonInteractable()
+        window.addEventListener("mousemove", this.captainMouseMoveHoverAbility)
+        window.addEventListener("keydown", this.captainRotateAbility)
+        window.addEventListener("mouseup", this.captainClickAbility)
+    }
+    
+    private removeCaptainAbilityListeners() {
+        window.removeEventListener("mousemove", this.captainMouseMoveHoverAbility)
+        window.removeEventListener("mousedown", this.captainRotateAbility)
+        this.activeAbility = null
+        this.activeAbilityDirection = null
+    }
+
+    public enableCaptainButtons() {
+        if (this.captain.revealAbility.abilityCost >= this.captain.abilityPoints) this.revealButton.addCallback((e: MouseEvent) => {this.captainRevealPressedCallback(e)})
+        if (this.captain.revealAbility.abilityCost >= this.captain.abilityPoints) this.attackButton.addCallback((e: MouseEvent) => {this.captainAttackPressedCallback(e)})
+    }
+    
+    public disableCaptainButtons() {
+        this.revealButton.removeCallback()
+        this.attackButton.removeCallback()
+    }
+
+    public incrementCaptainAbilityPoints() { this.captain.abilityPoints++ }
+
+    public getAttackEvaluationRequester() { return this.$attackEvaluationRequester }
 }

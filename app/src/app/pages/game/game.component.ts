@@ -1,4 +1,4 @@
-import { Component, ElementRef, AfterViewInit, ViewChild, booleanAttribute, OnInit } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
 import { Application } from 'pixi.js';
@@ -29,7 +29,7 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.socketService.socket.on('init-game', () => this.initGame())
         this.socketService.socket.on('my-turn', () => this.executeTurn())
         this.socketService.socket.on('evaluate-attack', (position: Position) => this.evaluateAttack(position))
-        this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean) => this.processEvaluatedAttackResult(hit, allShipDestroyed))
+        this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean, position: Position) => this.processEvaluatedAttackResult(hit, allShipDestroyed, position))
         this.socketService.socket.on('lost', () => this.gameLost())
     }
 
@@ -42,6 +42,8 @@ export class GameComponent implements AfterViewInit, OnInit {
     private mainScene!: MainScene
     private readyHandler!: Subscription
     private attackHandler!: Subscription
+    private attackEvaluationRequestHandler!: Subscription
+    private inAbilityMode: number = 0
 
     ngAfterViewInit(): void {
         //////////
@@ -59,14 +61,19 @@ export class GameComponent implements AfterViewInit, OnInit {
         ////////////////
         this.mainScene = new MainScene(this.app, this.captain)
         this.readyHandler = this.mainScene.areShipsPlaced().subscribe((ready: boolean) => { if (ready) this.ready() })
-        window.addEventListener('resize', (e: any) => {
-            this.app.renderer.resize(
-                document.body.clientWidth,
-                document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
-                )
-            this.mainScene.resize()
-            this.app.render()
+        this.attackEvaluationRequestHandler = this.mainScene.getAttackEvaluationRequester().subscribe((targetPositions: Position[]) => {
+            this.inAbilityMode = targetPositions.length
+            this.attackHandler.unsubscribe()
+            targetPositions.forEach(x => this.socketService.socket.emit("evaluate-attack", x))
         })
+        // window.addEventListener('resize', (e: any) => {
+        //     this.app.renderer.resize(
+        //         document.body.clientWidth,
+        //         document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
+        //         )
+        //     this.mainScene.resize()
+        //     this.app.render()
+        // })
         this.socketService.socket.emit('loaded')
     }
 
@@ -80,34 +87,42 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.mainScene.makeShipsNonDraggable()
     }
 
-    private hitTargetPosition: Position | undefined
     executeTurn(reExecute: boolean = false) {
         if (!reExecute) {
+            this.mainScene.enableCaptainButtons()
             this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
         }
         this.attackHandler = this.mainScene.attackResult().subscribe(position => {
             this.attackHandler.unsubscribe()
-            this.hitTargetPosition = position
+            this.mainScene.disableCaptainButtons()
             this.socketService.socket.emit("evaluate-attack", position)
         })
     }
 
     evaluateAttack(position: Position) {
-        this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position), this.mainScene.areAllShipsSunken())
+        this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position), this.mainScene.areAllShipsSunken(), position)
     }
     
-    processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean) {
-        this.mainScene.putMarkerOntoAttackBoard(hit, this.hitTargetPosition!)
+    processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean, position: Position) {
+        this.mainScene.putMarkerOntoAttackBoard(hit, position)
+        if (this.inAbilityMode > 1) {
+            this.inAbilityMode--
+            return
+        }
         if (allShipDestroyed) {
             setTimeout(() => {
                 this.gameWon()
                 this.socketService.socket.emit("won")
             }, 1000)
         } else {
-            if (hit) {
+            if (hit && !(this.inAbilityMode > 0)) {
+                this.mainScene.incrementCaptainAbilityPoints()
                 this.executeTurn(true)
             } else {
+                this.inAbilityMode = 0
                 setTimeout(() => {
+                    this.mainScene.incrementCaptainAbilityPoints()
+                    this.mainScene.disableCaptainButtons()
                     this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
                 }, 2000)
             }

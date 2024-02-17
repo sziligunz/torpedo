@@ -1,15 +1,19 @@
-import { Container, Graphics, TextStyle, Text } from "pixi.js"
+import { Container, Graphics, TextStyle, Text, ColorMatrixFilter } from "pixi.js"
 
 export class Button extends Container {
 
     private background: Graphics
     private label: Text
     private callback = (e: MouseEvent) => {}
+    private readonly grayFilter = new ColorMatrixFilter();
 
     constructor(text: string) {
         super()
 
         this.eventMode = 'static'
+
+        this.grayFilter.blackAndWhite(true)
+        this.filters = [this.grayFilter]
 
         this.background = this.createBackground()
         this.addChild(this.background)
@@ -68,10 +72,12 @@ export class Button extends Container {
 
     public addCallback(callback: (e: MouseEvent) => void) {
         this.callback = callback
+        this.filters = []
         this.addEventListener("pointerup", callback)
     }
-
+    
     public removeCallback() {
+        this.filters = [this.grayFilter]
         this.removeEventListener("pointerup", this.callback)
     }
 

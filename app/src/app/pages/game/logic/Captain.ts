@@ -7,6 +7,7 @@ export class Captain extends Sprite {
     captainName: string
     attackAbility: Ability
     revealAbility: Ability
+    abilityPoints: number = 0
 
     constructor(
         captainName: string,

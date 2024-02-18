@@ -1,4 +1,4 @@
-import { Application, Texture, Container, Sprite, Point, Graphics } from 'pixi.js';
+import { Application, Texture, Container, Sprite, Point, Graphics, DisplayObject, ObservablePoint } from 'pixi.js';
 import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
@@ -25,6 +25,7 @@ export class MainScene extends Container {
     public ships: Map<Ship, Position[] | null> = new Map()
     public myShipsBoardMarkers: Map<Marker, Ship | null> = new Map()
     public attackBoardMarkers: Marker[] = []
+    private attackBoardShips: {"ship": Sprite, "anchorPosition": Position}[] = []
     private $areAllShipsPutDown: Subject<boolean> = new Subject<boolean>()
     private $attackResults: Subject<Position> = new Subject<Position>()
     private attackButton: Button
@@ -74,6 +75,7 @@ export class MainScene extends Container {
         ////////////////
 
         const ship1 = new Ship(
+            1,
             app,
             this.myShipsBoard,
             {width: 116, height: 401}, 
@@ -91,6 +93,7 @@ export class MainScene extends Container {
         ////////////////
 
         const ship2 = new Ship(
+            2,
             app,
             this.myShipsBoard,
             {width: 116, height: 401}, 
@@ -108,6 +111,7 @@ export class MainScene extends Container {
         ////////////////
 
         const ship3 = new Ship(
+            3,
             app,
             this.myShipsBoard,
             {width: 116, height: 401}, 
@@ -126,6 +130,7 @@ export class MainScene extends Container {
         //////////////////////
 
         const ship4 = new Ship(
+            4,
             app,
             this.myShipsBoard,
             {width: 116, height: 401}, 
@@ -136,6 +141,7 @@ export class MainScene extends Container {
         this.ships.set(ship4, null)
         ship4.x = this.app.renderer.screen.right / 2
         const ship4SideShip = new Ship(
+            -1,
             app,
             this.myShipsBoard,
             {width: 116, height: 401},
@@ -144,7 +150,7 @@ export class MainScene extends Container {
             null,
             0)
         ship4SideShip.makeNonDraggable()
-        ship4SideShip.anchor.set(0.5,0.5)
+        ship4SideShip.anchor.set(0.5)
         ship4SideShip.eventMode = "none"
         ship4.addChild(ship4SideShip)
         ship4SideShip.position.set(-this.myShipsBoard.getTileSize()*2, -this.myShipsBoard.getTileSize()*3)
@@ -156,6 +162,7 @@ export class MainScene extends Container {
         ////////////////
 
         const ship5 = new Ship(
+            5,
             app,
             this.myShipsBoard,
             {width: 116, height: 401}, 
@@ -258,6 +265,10 @@ export class MainScene extends Container {
             lastAnim = marker.hideMarker(timeOffset, true)
             timeOffset += 0.1
         }
+        for (const data of this.attackBoardShips) {
+            lastAnim = gsap.to(data.ship.position, {y: -this.app.renderer.height, delay: timeOffset, duration: 1})
+            timeOffset += 0.1
+        }
         const defAnim = this.attackBoard.hideBoard()
         return (lastAnim) ? lastAnim : defAnim
     }
@@ -267,6 +278,10 @@ export class MainScene extends Container {
         let lastAnim: gsap.core.Tween | undefined
         for (const marker of this.attackBoardMarkers) {
             lastAnim = marker.showMarker(timeOffset, true)
+            timeOffset += 0.1
+        }
+        for (const data of this.attackBoardShips) {
+            lastAnim = gsap.to(data.ship.position, {y: data.anchorPosition.y, delay: timeOffset, duration: 1})
             timeOffset += 0.1
         }
         const defAnim = this.attackBoard.showBoard()
@@ -292,7 +307,7 @@ export class MainScene extends Container {
     public attackResult(): Observable<Position> { return this.$attackResults }
 
     public evaluateAttack(position: Position) {
-        let res = false
+        const res: {"hit": boolean, "sunkenShipId": number | null, "sunkenShipPosition": Position | null, "sunkenShipRotation": number | null, "sunkenShipAnchor": Position | null} = {"hit": false, "sunkenShipId": null, "sunkenShipPosition": null, "sunkenShipRotation": null, "sunkenShipAnchor": null}
         const worldPosition = this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].toGlobal(new Point(0, 0))
         let allShip = Array.from(this.ships.keys())
         for (const ship of Array.from(this.ships.keys())) {
@@ -301,7 +316,7 @@ export class MainScene extends Container {
         }
         const hitShips = raycastPoint(worldPosition, allShip)
         if (hitShips.length > 0) {
-            res = true
+            res.hit = true
             let hitShip = (hitShips[0] as Ship)
             if (hitShip.parent instanceof Ship)
                 hitShip = hitShip.parent
@@ -310,7 +325,13 @@ export class MainScene extends Container {
             hitMarker.position = worldPosition
             this.myShipsBoardMarkers.set(hitMarker, hitShip)
             this.app.stage.addChild(hitMarker)
-            if (hitShip.isSunken()) this.destoryShip(hitShip)
+            if (hitShip.isSunken()) {
+                this.destoryShip(hitShip)
+                res.sunkenShipId = hitShip.ID
+                res.sunkenShipPosition = getIndexFromChild(raycastPoint(hitShip.toGlobal(new Point(0,0)), this.myShipsBoard.children as Sprite[])![0], this.myShipsBoard.children, this.myShipsBoard.tileNumber)
+                res.sunkenShipRotation = hitShip.angle
+                res.sunkenShipAnchor = {x: hitShip.anchor.x, y: hitShip.anchor.y}
+            }
         } else {
             const missMarker = new MissMarker(this.app, 0.1)
             missMarker.position = worldPosition
@@ -342,7 +363,7 @@ export class MainScene extends Container {
     }
 
     public putMarkerOntoAttackBoard(hit: boolean, position: Position) {
-        const worldPosition = this.attackBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].toGlobal(new Point(0, 0))
+        const worldPosition = this.attackBoard.children[position.y + position.x * this.attackBoard.tileNumber].toGlobal(new Point(0, 0))
         let marker: Marker = (hit) ? new HitMarker(this.app, 0.1) : new MissMarker(this.app, 0.1)
         marker.position = worldPosition
         this.attackBoardMarkers.push(marker)
@@ -445,4 +466,29 @@ export class MainScene extends Container {
     public incrementCaptainAbilityPoints() { this.captain.abilityPoints++ }
 
     public getAttackEvaluationRequester() { return this.$attackEvaluationRequester }
+
+    public putDestroyedShipOnAttackBoard(sunkenShipId: number, position: Position, sunkenShipRotation: number, sunkenShipAnchor: Position) {
+        const worldPosition = this.attackBoard.children[position.y + position.x * this.attackBoard.tileNumber].toGlobal(new Point(0, 0))
+        const baseShip = Array.from(this.ships.keys()).find(x => x.ID == sunkenShipId)!
+        const shadowShip = Sprite.from(baseShip.texture)
+        shadowShip.anchor.set(sunkenShipAnchor.x, sunkenShipAnchor.y)
+        if (baseShip.children.length > 0) {
+            baseShip.children.forEach(child => {
+                const shadowChild = Sprite.from((child as Sprite).texture)
+                shadowShip.addChild(shadowChild)
+                shadowChild.anchor = (child as Sprite).anchor
+                shadowChild.angle = child.angle
+                shadowChild.scale = child.scale
+                shadowChild.position = child.position
+            })
+        } 
+        shadowShip.position = worldPosition
+        shadowShip.scale = baseShip.scale
+        shadowShip.angle = sunkenShipRotation
+        shadowShip.alpha = 0
+        this.app.stage.addChild(shadowShip)
+        this.attackBoardShips.push({"ship": shadowShip, "anchorPosition": shadowShip.position.clone()})
+        gsap.to(shadowShip, {alpha: 0.5, animationDuration: 1})
+    }
+
 }

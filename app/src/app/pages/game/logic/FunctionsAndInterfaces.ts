@@ -35,7 +35,7 @@ export function isSpriteInside(spriteInner: Sprite, spriteOuter: Sprite | Contai
         boundsOuter.bottom+buffer < boundsInner.bottom)
 }
 
-export function isIntersecting(spriteA: Sprite, spriteB: Sprite, app: Application): boolean {
+export function isIntersecting(spriteA: Sprite, spriteB: Sprite): boolean {
     function getSpriteOwnBoundingBox(sprite: Sprite): Rectangle {
         const clone = new Sprite(sprite.texture)
         clone.anchor.set(sprite.anchor.x, sprite.anchor.y)

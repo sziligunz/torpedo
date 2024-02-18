@@ -30,7 +30,7 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.socketService.socket.on('init-game', () => this.initGame())
         this.socketService.socket.on('my-turn', () => this.executeTurn())
         this.socketService.socket.on('evaluate-attack', (position: Position) => this.evaluateAttack(position))
-        this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean, position: Position) => this.processEvaluatedAttackResult(hit, allShipDestroyed, position))
+        this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean, position: Position, sunkenShipId: number, sunkenShipPosition: Position, sunkenShipRotation: number, sunkenShipAnchor: Position) => this.processEvaluatedAttackResult(hit, allShipDestroyed, position, sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor))
         this.socketService.socket.on('evaluate-reveal', (position: Position) => this.evaluateReveal(position))
         this.socketService.socket.on('evaluate-reveal-result', (hit: boolean, position: Position) => this.processEvaluatedRevealResult(hit, position))
         this.socketService.socket.on('lost', () => this.gameLost())
@@ -117,15 +117,19 @@ export class GameComponent implements AfterViewInit, OnInit {
     }
 
     evaluateAttack(position: Position) {
-        this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position), this.mainScene.areAllShipsSunken(), position)
+        const evaluation = this.mainScene.evaluateAttack(position)
+        this.socketService.socket.emit("evaluate-attack-result", evaluation.hit, this.mainScene.areAllShipsSunken(), position, evaluation.sunkenShipId, evaluation.sunkenShipPosition, evaluation.sunkenShipRotation, evaluation.sunkenShipAnchor)
     }
 
     evaluateReveal(position: Position) {
         this.socketService.socket.emit("evaluate-reveal-result", this.mainScene.evaluateReveal(position), position)
     }
     
-    processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean, position: Position) {
+    processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean, position: Position, sunkenShipId: number, sunkenShipPosition: Position, sunkenShipRotation: number, sunkenShipAnchor: Position) {
         this.mainScene.putMarkerOntoAttackBoard(hit, position)
+        if(sunkenShipId != null && sunkenShipPosition != null && sunkenShipRotation != null && sunkenShipAnchor != null) {
+            this.mainScene.putDestroyedShipOnAttackBoard(sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor)
+        }
         if (this.inAbilityMode > 1) {
             this.inAbilityMode--
             return

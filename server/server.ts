@@ -92,12 +92,12 @@ io.on("connection", (socket) => {
     })
     
     // On post for attack results
-    socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean, position: any) => {
+    socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean, position: any, sunkenShipId: number, sunkenShipPosition: any, sunkenShipRotation: number, sunkenShipAnchor: any) => {
         const roomHash = getRoomHash(socket)
         if (matches.get(roomHash)!.player1 == socket) {
-            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack-result", hit, allShipDestroyed, position)
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack-result", hit, allShipDestroyed, position, sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor)
         } else {
-            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack-result", hit, allShipDestroyed, position)
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack-result", hit, allShipDestroyed, position, sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor)
         }
     })
 

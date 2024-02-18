@@ -66,14 +66,22 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.mainScene.getAttackEvaluationRequester().subscribe((data: {"positions": Position[], "type": AbilityType}) => {
             this.attackHandler.unsubscribe()
             this.mainScene.attackBoard.makeNonInteractable()
-            this.inAbilityMode = data.positions.length
-            switch(data.type) {
-                case AbilityType.ATTACK:
-                    data.positions.forEach(x => this.socketService.socket.emit("evaluate-attack", x))
-                    break;
-                case AbilityType.REVEAL:
-                    data.positions.forEach(x => this.socketService.socket.emit("evaluate-reveal", x))
-                    break;
+            if (data.positions.length == 0) {
+                setTimeout(() => {
+                    this.mainScene.incrementCaptainAbilityPoints()
+                    this.mainScene.disableCaptainButtons()
+                    this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+                }, 2000)
+            } else {
+                this.inAbilityMode = data.positions.length
+                switch(data.type) {
+                    case AbilityType.ATTACK:
+                        data.positions.forEach(x => this.socketService.socket.emit("evaluate-attack", x))
+                        break;
+                    case AbilityType.REVEAL:
+                        data.positions.forEach(x => this.socketService.socket.emit("evaluate-reveal", x))
+                        break;
+                }
             }
         })
         // window.addEventListener('resize', (e: any) => {

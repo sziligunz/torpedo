@@ -1,6 +1,7 @@
 import { ColorMatrixFilter, Point, Sprite } from "pixi.js"
 import { Position, getIndexFromChild, raycastPoint } from "./FunctionsAndInterfaces"
 import { Ship } from "./Ship"
+import { Marker } from "./Marker"
 
 export enum Direction {
     LEFT = 0,
@@ -79,10 +80,15 @@ export abstract class Ability {
         this.applyHoverEffect()
     }
 
-    performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number, ships: Ship[]): Position[] {
+    performAbility(targetPosition: Position, direction: Direction, tileSprites: Sprite[], tileNumber: number, markers: Marker[]): Position[] {
         const targetPositionClone = structuredClone(targetPosition)
         let abilityPositionsClone = structuredClone(this.getAbilityPositions())
         return this.getPatterMatchedTiles(targetPositionClone, abilityPositionsClone, direction, tileSprites, tileNumber)!
+            .filter(x => {
+                if (this.abilityType == AbilityType.REVEAL) return true
+                if (raycastPoint(x.toGlobal(new Point(0,0)), markers).length > 0) return false
+                return true
+            })
             .map(x => getIndexFromChild(x, tileSprites, tileNumber))!
             .filter(x => x != null) as Position[]
     }

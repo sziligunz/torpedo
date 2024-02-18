@@ -389,8 +389,7 @@ export class MainScene extends Container {
                     this.activeAbilityDirection!,
                     this.attackBoard.children as Sprite[],
                     this.attackBoard.tileNumber,
-                    Array.from(this.ships.keys())
-                )
+                    this.attackBoardMarkers)
                 this.disableCaptainButtons()
                 this.captain.abilityPoints = Math.max(this.captain.abilityPoints - this.activeAbility!.abilityCost, 0)
                 this.$attackEvaluationRequester.next({positions: targetTiles, type: this.activeAbility!.abilityType})

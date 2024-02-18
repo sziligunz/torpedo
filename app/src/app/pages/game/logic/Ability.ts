@@ -136,3 +136,53 @@ export class SpyglassAbility extends Ability {
     }
 
 }
+
+export class TorpedoAbility extends Ability {
+
+    constructor() {
+        super(
+            AbilityType.ATTACK,
+            "Torpedo",
+            "Sends out a long distance torpedo in a straight line with immense firepower. Watch out though, it needs some time to activate before it can detonate on the target.",
+            4
+            )
+    }
+
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -1, y: 0},
+            {x: -2, y: 0},
+            {x: -3, y: 0},
+            {x: -4, y: 0},
+            {x: -5, y: 0},
+        ]
+    }
+
+}
+
+export class SonarAbility extends Ability {
+
+    constructor() {
+        super(
+            AbilityType.REVEAL,
+            "Sonar",
+            "Reveals how many tiles are occupied by the enemy ships in a circular area.",
+            4
+            )
+    }
+
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -1, y: -1},
+            {x: 0, y: -1},
+            {x: 1, y: -1},
+            {x: -1, y: 0},
+            {x: 0, y: 0},
+            {x: 1, y: 0},
+            {x: -1, y: 1},
+            {x: 0, y: 1},
+            {x: 1, y: 1},
+        ]
+    }
+
+}

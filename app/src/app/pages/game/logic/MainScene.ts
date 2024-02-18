@@ -5,7 +5,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { Observable, last } from 'rxjs';
 import { Position, getIndexFromChild, getShipsOccupiedPositions, getTrueClient, raycastPoint } from './FunctionsAndInterfaces';
 import { HitMarker, Marker, MissMarker } from './Marker';
-import { Captain, PirateCaptain } from './Captain';
+import { Captain, BlackbeardCaptain, CaptainNemoCaptain } from './Captain';
 import { Button } from './Button';
 import { Ability, AbilityType, Direction } from './Ability';
 import gsap from 'gsap';
@@ -182,11 +182,14 @@ export class MainScene extends Container {
         /////////////
 
         switch(captainString) {
-            case 'pirate':
-                this.captain = new PirateCaptain(0.2)
+            case 'blackbeard':
+                this.captain = new BlackbeardCaptain(0.2)
+                break;
+            case 'captainnemo':
+                this.captain = new CaptainNemoCaptain(0.2)
                 break;
             default:
-                this.captain = new PirateCaptain(0.2)
+                this.captain = new BlackbeardCaptain(0.2)
                 break;
         }
         this.captain.position.x = this.app.renderer.screen.right - 250

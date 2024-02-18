@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 import { SocketService } from 'src/app/services/socket.service';
 import { UserCrudService } from 'src/app/services/userCrud.service';
-import { Captain, BlackbeardCaptain, CaptainNemoCaptain } from '../game/logic/Captain';
+import { Captain, BlackbeardCaptain, CaptainNemoCaptain, CaptainNoahStormbreakerCaptain, CaptainLeoHawkCaptain } from '../game/logic/Captain';
 
 @Component({
     selector: 'app-home',
@@ -19,6 +19,10 @@ export class HomeComponent {
     blackbeardImgPath: string = "assets/pirate_captain.png"
     captainNemo: Captain = new CaptainNemoCaptain(0)
     captainNemoImgPath: string = "assets/submarine_captain.png"
+    captainNoahStormbreaker: Captain = new CaptainNoahStormbreakerCaptain(0)
+    captainNoahStormbreakerImgPath: string = "assets/battleship_captain.png"
+    captainLeoHawk: Captain = new CaptainLeoHawkCaptain(0)
+    captainLeoHawkImgPath: string = "assets/carrier_captain.png"
 
     spinSpinner: boolean = false
     showCaptainsState: boolean = false

@@ -39,7 +39,6 @@ export class GameComponent implements AfterViewInit, OnInit {
     ngOnInit(): void {
         const lastState = this.router.lastSuccessfulNavigation?.extras.state;
         if (lastState && lastState['data']) this.captain = lastState['data']['captain']
-        console.log(this.captain)
     }
 
     private mainScene!: MainScene

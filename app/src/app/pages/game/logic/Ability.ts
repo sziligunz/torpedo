@@ -192,3 +192,125 @@ export class SonarAbility extends Ability {
     }
 
 }
+
+export class ObservationFloatPlaneAbility extends Ability {
+
+    constructor() {
+        super(
+            AbilityType.REVEAL,
+            "Observation Floatplane",
+            "Sends out an observation plane that scouts ahead revealing nearby ships.",
+            5
+            )
+    }
+
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -1, y: -1},
+            {x: -2, y: -1},
+            {x: -3, y: -1},
+            {x: -1, y: 0},
+            {x: -2, y: 0},
+            {x: -3, y: 0},
+            {x: -4, y: 0},
+            {x: -1, y: 1},
+            {x: -2, y: 1},
+            {x: -3, y: 1},
+        ]
+    }
+
+}
+
+export class SalvoFiringAbility extends Ability {
+
+    constructor() {
+        super(
+            AbilityType.ATTACK,
+            "Salvo Firing",
+            "Fires a salvo of shells for a long distance decimating everything that stands in the way.",
+            6
+            )
+    }
+
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -1, y: -1},
+            {x: -2, y: -1},
+            {x: -3, y: -1},
+            {x: -3, y: -1},
+            {x: -1, y: 1},
+            {x: -2, y: 1},
+            {x: -3, y: 1},
+            {x: -3, y: 1}
+        ]
+    }
+}
+
+export class ReconFlyoverAbility extends Ability {
+
+    constructor() {
+        super(
+            AbilityType.REVEAL,
+            "Recon Flyover",
+            "Sends out multiple aircrafts for reconnaissance mission",
+            8
+            )
+    }
+
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: -3, y: -1},
+            {x: -2, y: -1},
+            {x: -1, y: -1},
+            {x: 0, y: -1},
+            {x: 1, y: -1},
+            {x: 2, y: -1},
+            {x: 3, y: -1},
+            {x: -3, y: 1},
+            {x: -2, y: 1},
+            {x: -1, y: 1},
+            {x: 0, y: 1},
+            {x: 1, y: 1},
+            {x: 2, y: 1},
+            {x: 3, y: 1},
+        ]
+    }
+
+}
+
+export class CarpetBombingAbility extends Ability {
+
+    constructor() {
+        super(
+            AbilityType.ATTACK,
+            "Carpet Bombing",
+            "Carpet bombs a large area that leaves no chance for nearby ships to stay afloat.",
+            8
+            )
+    }
+
+    protected override getAbilityPositions(): Position[] {
+        return [
+            {x: 2, y: -1},
+            {x: 1, y: -1},
+            {x: 0, y: -1},
+            {x: -1, y: -1},
+            {x: -2, y: -1},
+            {x: 2, y: -2},
+            {x: 1, y: -2},
+            {x: 0, y: -2},
+            {x: -1, y: -2},
+            {x: -2, y: -2},
+            {x: 2, y: 1},
+            {x: 1, y: 1},
+            {x: 0, y: 1},
+            {x: -1, y: 1},
+            {x: -2, y: 1},
+            {x: 2, y: 2},
+            {x: 1, y: 2},
+            {x: 0, y: 2},
+            {x: -1, y: 2},
+            {x: -2, y: 2},
+        ]
+    }
+}

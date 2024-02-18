@@ -1,6 +1,6 @@
 import { Texture, Sprite } from "pixi.js"
 import { Subject } from "rxjs"
-import { Ability, BombardAbility, SonarAbility, SpyglassAbility, TorpedoAbility } from "./Ability"
+import { Ability, BombardAbility, CarpetBombingAbility, ObservationFloatPlaneAbility, ReconFlyoverAbility, SalvoFiringAbility, SonarAbility, SpyglassAbility, TorpedoAbility } from "./Ability"
 
 export class Captain extends Sprite {
 
@@ -53,6 +53,34 @@ export class CaptainNemoCaptain extends Captain {
             new TorpedoAbility(),
             new SonarAbility(),
             Texture.from("assets/submarine_captain.png"),
+            imageScale)
+    }
+
+}
+
+export class CaptainNoahStormbreakerCaptain extends Captain {
+
+    constructor(imageScale: number) {
+        super(
+            "Captain Noah Stormbreaker",
+            "Captain Noah Stormbreaker is a fearless and daring leader who commands his mighty battleship across the seven seas, protecting his crew and the world from pirates, monsters, and other perils.",
+            new SalvoFiringAbility(),
+            new ObservationFloatPlaneAbility(),
+            Texture.from("assets/battleship_captain.png"),
+            imageScale)
+    }
+
+}
+
+export class CaptainLeoHawkCaptain extends Captain {
+
+    constructor(imageScale: number) {
+        super(
+            "Captain Leo Hawk",
+            "Captain Leo Hawk is an adventurous aircraft carrier captain who has a keen eye for detail and a knack for anticipating his enemies' moves.",
+            new CarpetBombingAbility(),
+            new ReconFlyoverAbility(),
+            Texture.from("assets/carrier_captain.png"),
             imageScale)
     }
 

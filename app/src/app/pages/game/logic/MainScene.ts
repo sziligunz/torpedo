@@ -7,7 +7,7 @@ import { Position, getIndexFromChild, getShipsOccupiedPositions, getTrueClient, 
 import { HitMarker, Marker, MissMarker } from './Marker';
 import { Captain, PirateCaptain } from './Captain';
 import { Button } from './Button';
-import { Ability, Direction } from './Ability';
+import { Ability, AbilityType, Direction } from './Ability';
 import gsap from 'gsap';
 
 export class ShipPlacementObserver {
@@ -29,7 +29,7 @@ export class MainScene extends Container {
     private $attackResults: Subject<Position> = new Subject<Position>()
     private attackButton: Button
     private revealButton: Button
-    private $attackEvaluationRequester: Subject<Position[]> = new Subject<Position[]>()
+    private $attackEvaluationRequester: Subject<{"positions": Position[], "type": AbilityType}> = new Subject<{"positions": Position[], "type": AbilityType}>()
 
     constructor(app: Application, captainString: string) {
         super()
@@ -192,6 +192,9 @@ export class MainScene extends Container {
         this.captain.position.x = this.app.renderer.screen.right - 250
         this.captain.position.y = this.app.renderer.screen.bottom / 2 - 50
         this.app.stage.addChild(this.captain)
+        // TEMPORARY INFINITE ABILITYPOINTS FOR TESTING
+        this.captain.abilityPoints = 10000
+        // TEMPORARY INFINITE ABILITYPOINTS FOR TESTING
 
         ////////////////////////////
         // CAPTAIN ACTION BUTTONS //
@@ -292,7 +295,7 @@ export class MainScene extends Container {
             res = true
             let hitShip = (hitShips[0] as Ship)
             if (hitShip.parent instanceof Ship)
-            hitShip = hitShip.parent
+                hitShip = hitShip.parent
             hitShip.hitShip()
             const hitMarker = new HitMarker(this.app, 0.1)
             hitMarker.position = worldPosition
@@ -306,6 +309,20 @@ export class MainScene extends Container {
             this.app.stage.addChild(missMarker)
         }
         return res
+    }
+
+    public evaluateReveal(position: Position) {
+        const worldPosition = this.myShipsBoard.children[position.y + position.x * this.myShipsBoard.tileNumber].toGlobal(new Point(0, 0))
+        let allShip = Array.from(this.ships.keys())
+        for (const ship of Array.from(this.ships.keys())) {
+            if (ship.children.length > 0)
+                allShip = allShip.concat(ship.children as Ship[])
+        }
+        const hitShips = raycastPoint(worldPosition, allShip)
+        if (hitShips.length > 0) {
+            return true
+        }
+        return false
     }
 
     private destoryShip(target: Sprite) {
@@ -373,10 +390,8 @@ export class MainScene extends Container {
                 )
                 this.disableCaptainButtons()
                 this.captain.abilityPoints = Math.max(this.captain.abilityPoints - this.activeAbility!.abilityCost, 0)
+                this.$attackEvaluationRequester.next({positions: targetTiles, type: this.activeAbility!.abilityType})
                 this.removeCaptainAbilityListeners()
-                this.attackBoard.makeInteractable()
-                // ATTACK ABILITY SPECIAL CASE
-                this.$attackEvaluationRequester.next(targetTiles)
             } 
         }
     }
@@ -403,14 +418,15 @@ export class MainScene extends Container {
     
     private removeCaptainAbilityListeners() {
         window.removeEventListener("mousemove", this.captainMouseMoveHoverAbility)
-        window.removeEventListener("mousedown", this.captainRotateAbility)
+        window.removeEventListener("keydown", this.captainRotateAbility)
+        window.removeEventListener("mouseup", this.captainClickAbility)
         this.activeAbility = null
         this.activeAbilityDirection = null
     }
 
     public enableCaptainButtons() {
-        if (this.captain.revealAbility.abilityCost >= this.captain.abilityPoints) this.revealButton.addCallback((e: MouseEvent) => {this.captainRevealPressedCallback(e)})
-        if (this.captain.revealAbility.abilityCost >= this.captain.abilityPoints) this.attackButton.addCallback((e: MouseEvent) => {this.captainAttackPressedCallback(e)})
+        if (this.captain.revealAbility.abilityCost <= this.captain.abilityPoints) this.revealButton.addCallback((e: MouseEvent) => {this.captainRevealPressedCallback(e)})
+        if (this.captain.revealAbility.abilityCost <= this.captain.abilityPoints) this.attackButton.addCallback((e: MouseEvent) => {this.captainAttackPressedCallback(e)})
     }
     
     public disableCaptainButtons() {

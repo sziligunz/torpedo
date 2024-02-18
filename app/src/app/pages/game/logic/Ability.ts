@@ -9,15 +9,22 @@ export enum Direction {
     DOWN = 3
 }
 
+export enum AbilityType {
+    ATTACK = 0,
+    REVEAL = 1
+}
+
 export abstract class Ability {
 
+    abilityType: AbilityType
     abilityName: string
     abilityDescription: string
     abilityCost: number
     protected hoverSprites: Sprite[] = []
     private greenFilter: ColorMatrixFilter = new ColorMatrixFilter()
 
-    constructor(abilityName: string, abilityDescription: string, abilityCost: number) {
+    constructor(abilityType: AbilityType, abilityName: string, abilityDescription: string, abilityCost: number) {
+        this.abilityType = abilityType
         this.abilityName = abilityName
         this.abilityDescription = abilityDescription
         this.abilityCost = abilityCost
@@ -86,6 +93,7 @@ export class BombardAbility extends Ability {
 
     constructor() {
         super(
+            AbilityType.ATTACK,
             "Bombrad",
             "Bombards a wide are with his cannons, but not far since he is from the 1400's...",
             4
@@ -109,6 +117,7 @@ export class SpyglassAbility extends Ability {
 
     constructor() {
         super(
+            AbilityType.REVEAL,
             "Spyglass",
             "Reveals how many tiles are occupied by the enemy ships in a straight line.",
             3

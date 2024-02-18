@@ -80,6 +80,16 @@ io.on("connection", (socket) => {
             io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack", position)
         }
     })
+
+    // On request for reveal results
+    socket.on("evaluate-reveal", (position) => {
+        const roomHash = getRoomHash(socket)
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-reveal", position)
+        } else {
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-reveal", position)
+        }
+    })
     
     // On post for attack results
     socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean, position: any) => {
@@ -88,6 +98,16 @@ io.on("connection", (socket) => {
             io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack-result", hit, allShipDestroyed, position)
         } else {
             io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack-result", hit, allShipDestroyed, position)
+        }
+    })
+
+    // On post for reveal results
+    socket.on("evaluate-reveal-result", (hit: boolean, position: any) => {
+        const roomHash = getRoomHash(socket)
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-reveal-result", hit, position)
+        } else {
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-reveal-result", hit, position)
         }
     })
 

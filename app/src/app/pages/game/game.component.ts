@@ -5,6 +5,7 @@ import { Application } from 'pixi.js';
 import { MainScene } from './logic/MainScene';
 import { Subscription } from 'rxjs';
 import { Position } from './logic/FunctionsAndInterfaces';
+import { AbilityType } from './logic/Ability';
 
 @Component({
     selector: 'app-game',
@@ -30,6 +31,8 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.socketService.socket.on('my-turn', () => this.executeTurn())
         this.socketService.socket.on('evaluate-attack', (position: Position) => this.evaluateAttack(position))
         this.socketService.socket.on('evaluate-attack-result', (hit: boolean, allShipDestroyed: boolean, position: Position) => this.processEvaluatedAttackResult(hit, allShipDestroyed, position))
+        this.socketService.socket.on('evaluate-reveal', (position: Position) => this.evaluateReveal(position))
+        this.socketService.socket.on('evaluate-reveal-result', (hit: boolean, position: Position) => this.processEvaluatedRevealResult(hit, position))
         this.socketService.socket.on('lost', () => this.gameLost())
     }
 
@@ -42,7 +45,6 @@ export class GameComponent implements AfterViewInit, OnInit {
     private mainScene!: MainScene
     private readyHandler!: Subscription
     private attackHandler!: Subscription
-    private attackEvaluationRequestHandler!: Subscription
     private inAbilityMode: number = 0
 
     ngAfterViewInit(): void {
@@ -61,10 +63,18 @@ export class GameComponent implements AfterViewInit, OnInit {
         ////////////////
         this.mainScene = new MainScene(this.app, this.captain)
         this.readyHandler = this.mainScene.areShipsPlaced().subscribe((ready: boolean) => { if (ready) this.ready() })
-        this.attackEvaluationRequestHandler = this.mainScene.getAttackEvaluationRequester().subscribe((targetPositions: Position[]) => {
-            this.inAbilityMode = targetPositions.length
+        this.mainScene.getAttackEvaluationRequester().subscribe((data: {"positions": Position[], "type": AbilityType}) => {
             this.attackHandler.unsubscribe()
-            targetPositions.forEach(x => this.socketService.socket.emit("evaluate-attack", x))
+            this.mainScene.attackBoard.makeNonInteractable()
+            this.inAbilityMode = data.positions.length
+            switch(data.type) {
+                case AbilityType.ATTACK:
+                    data.positions.forEach(x => this.socketService.socket.emit("evaluate-attack", x))
+                    break;
+                case AbilityType.REVEAL:
+                    data.positions.forEach(x => this.socketService.socket.emit("evaluate-reveal", x))
+                    break;
+            }
         })
         // window.addEventListener('resize', (e: any) => {
         //     this.app.renderer.resize(
@@ -102,6 +112,10 @@ export class GameComponent implements AfterViewInit, OnInit {
     evaluateAttack(position: Position) {
         this.socketService.socket.emit("evaluate-attack-result", this.mainScene.evaluateAttack(position), this.mainScene.areAllShipsSunken(), position)
     }
+
+    evaluateReveal(position: Position) {
+        this.socketService.socket.emit("evaluate-reveal-result", this.mainScene.evaluateReveal(position), position)
+    }
     
     processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean, position: Position) {
         this.mainScene.putMarkerOntoAttackBoard(hit, position)
@@ -126,6 +140,20 @@ export class GameComponent implements AfterViewInit, OnInit {
                     this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
                 }, 2000)
             }
+        }
+    }
+
+    processEvaluatedRevealResult(revealed: boolean, position: Position) {
+        // if (revealed) 
+            // PUT NUMBER OF FOUND SHIPS TO UI
+        this.inAbilityMode--
+        if (this.inAbilityMode <= 0) {
+            this.inAbilityMode = 0
+            setTimeout(() => {
+                this.mainScene.incrementCaptainAbilityPoints()
+                this.mainScene.disableCaptainButtons()
+                this.mainScene.hideAttackBoard().then(() => this.mainScene.showShipsBoard().then(() => {this.socketService.socket.emit("end-turn")}))
+            }, 2000)
         }
     }
 

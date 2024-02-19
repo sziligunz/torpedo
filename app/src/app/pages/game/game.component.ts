@@ -6,6 +6,8 @@ import { MainScene } from './logic/MainScene';
 import { Subscription } from 'rxjs';
 import { Position } from './logic/FunctionsAndInterfaces';
 import { AbilityType } from './logic/Ability';
+import { UserCrudService } from 'src/app/services/userCrud.service';
+import { UserStatistics } from 'src/app/models/UserStatistics';
 
 @Component({
     selector: 'app-game',
@@ -16,12 +18,14 @@ export class GameComponent implements AfterViewInit, OnInit {
 
     private app!: Application
     private captain!: string
+    private matchesUserStatistics: UserStatistics = new UserStatistics(0,0,0,0,0,0,0,0,0)
 
     @ViewChild("appContainer") appContainer!: ElementRef;
 
     constructor(
         private router: Router,
         private socketService: SocketService,
+        private userCrudService: UserCrudService
     ) {
         if (this.socketService.roomHash === null) {
             this.router.navigateByUrl("/home")
@@ -75,9 +79,11 @@ export class GameComponent implements AfterViewInit, OnInit {
                 this.inAbilityMode = data.positions.length
                 switch(data.type) {
                     case AbilityType.ATTACK:
+                        this.matchesUserStatistics.numberOfAttacksUsed++
                         data.positions.forEach(x => this.socketService.socket.emit("evaluate-attack", x))
                         break;
                     case AbilityType.REVEAL:
+                        this.matchesUserStatistics.numberOfRevealsUsed++
                         data.positions.forEach(x => this.socketService.socket.emit("evaluate-reveal", x))
                         break;
                 }
@@ -104,10 +110,14 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.mainScene.makeShipsNonDraggable()
     }
 
+    private currentHitStreak: number = 0
     executeTurn(reExecute: boolean = false) {
         if (!reExecute) {
+            this.matchesUserStatistics.numberOfTurnsPlayed++
             this.mainScene.enableCaptainButtons()
             this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
+        } else {
+            this.currentHitStreak++
         }
         this.attackHandler = this.mainScene.attackResult().subscribe(position => {
             this.attackHandler.unsubscribe()
@@ -126,8 +136,11 @@ export class GameComponent implements AfterViewInit, OnInit {
     }
     
     processEvaluatedAttackResult(hit: boolean, allShipDestroyed: boolean, position: Position, sunkenShipId: number, sunkenShipPosition: Position, sunkenShipRotation: number, sunkenShipAnchor: Position) {
+        if(hit) this.matchesUserStatistics.numberOfHits++
+        else this.matchesUserStatistics.numberOfMisses++
         this.mainScene.putMarkerOntoAttackBoard(hit, position)
         if(sunkenShipId != null && sunkenShipPosition != null && sunkenShipRotation != null && sunkenShipAnchor != null) {
+            this.matchesUserStatistics.numberOfShipsDestroyed++
             this.mainScene.putDestroyedShipOnAttackBoard(sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor)
         }
         if (this.inAbilityMode > 1) {
@@ -145,6 +158,7 @@ export class GameComponent implements AfterViewInit, OnInit {
                 this.executeTurn(true)
             } else {
                 this.inAbilityMode = 0
+                this.matchesUserStatistics.biggestHitStreak = Math.max(this.currentHitStreak, this.matchesUserStatistics.biggestHitStreak)
                 setTimeout(() => {
                     this.mainScene.incrementCaptainAbilityPoints()
                     this.mainScene.disableCaptainButtons()
@@ -169,10 +183,12 @@ export class GameComponent implements AfterViewInit, OnInit {
     }
 
     private gameWon() {
+        this.matchesUserStatistics.numberOfWins++
         console.log("YOU HAVE WON THE GAME")
     }
     
     private gameLost() {
+        this.matchesUserStatistics.numberOfLosses++
         console.log("YOU HAVE LOST THE GAME")
     }
 }

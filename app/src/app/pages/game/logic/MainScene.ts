@@ -208,9 +208,7 @@ export class MainScene extends Container {
         this.captain.position.x = this.app.renderer.screen.right - 250
         this.captain.position.y = this.app.renderer.screen.bottom / 2 - 50
         this.app.stage.addChild(this.captain)
-        // TEMPORARY INFINITE ABILITYPOINTS FOR TESTING
-        this.captain.abilityPoints = 10000
-        // TEMPORARY INFINITE ABILITYPOINTS FOR TESTING
+        this.captain.abilityPoints = 0
 
         ////////////////////////////
         // CAPTAIN ACTION BUTTONS //

@@ -1,6 +1,5 @@
 import { ColorMatrixFilter, Point, Sprite } from "pixi.js"
 import { Position, getIndexFromChild, raycastPoint } from "./FunctionsAndInterfaces"
-import { Ship } from "./Ship"
 import { Marker } from "./Marker"
 
 export enum Direction {

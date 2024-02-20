@@ -8,6 +8,7 @@ import { Position } from './logic/FunctionsAndInterfaces';
 import { AbilityType } from './logic/Ability';
 import { UserCrudService } from 'src/app/services/userCrud.service';
 import { UserStatistics } from 'src/app/models/UserStatistics';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
     selector: 'app-game',
@@ -25,6 +26,7 @@ export class GameComponent implements AfterViewInit, OnInit {
     constructor(
         private router: Router,
         private socketService: SocketService,
+        private authService: AuthService,
         private userCrudService: UserCrudService
     ) {
         if (this.socketService.roomHash === null) {
@@ -113,6 +115,8 @@ export class GameComponent implements AfterViewInit, OnInit {
     private currentHitStreak: number = 0
     executeTurn(reExecute: boolean = false) {
         if (!reExecute) {
+            this.numberOfReveals = 0
+            this.mainScene.resetRevealedShipsText()
             this.matchesUserStatistics.numberOfTurnsPlayed++
             this.mainScene.enableCaptainButtons()
             this.mainScene.hideShipsBoard().then(() => this.mainScene.showAttackBoard())
@@ -168,9 +172,10 @@ export class GameComponent implements AfterViewInit, OnInit {
         }
     }
 
+    private numberOfReveals = 0
     processEvaluatedRevealResult(revealed: boolean, position: Position) {
-        // if (revealed) 
-            // PUT NUMBER OF FOUND SHIPS TO UI
+        if (revealed) 
+            this.mainScene.updateRevealedShipsText(++this.numberOfReveals)
         this.inAbilityMode--
         if (this.inAbilityMode <= 0) {
             this.inAbilityMode = 0
@@ -182,13 +187,15 @@ export class GameComponent implements AfterViewInit, OnInit {
         }
     }
 
-    private gameWon() {
+    private async gameWon() {
         this.matchesUserStatistics.numberOfWins++
         console.log("YOU HAVE WON THE GAME")
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
     }
     
-    private gameLost() {
+    private async gameLost() {
         this.matchesUserStatistics.numberOfLosses++
         console.log("YOU HAVE LOST THE GAME")
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
     }
 }

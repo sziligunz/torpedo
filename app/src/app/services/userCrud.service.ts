@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../models/User';
 import { asObject } from '../shared/GlobalFunctions';
+import { UserStatistics } from '../models/UserStatistics';
 
 @Injectable({
     providedIn: 'root'
@@ -22,6 +23,10 @@ export class UserCrudService {
                 user => { resolve(user.data()) }
             )
         })
+    }
+
+    updateUserStatistics(userId: string, newStats: UserStatistics) {
+        this.firestore.collection<User>(this.USER_PATH).doc(userId)
     }
 
 }

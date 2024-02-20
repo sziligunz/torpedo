@@ -1,8 +1,8 @@
-import { Application, Texture, Container, Sprite, Point, Graphics, DisplayObject, ObservablePoint } from 'pixi.js';
+import { Application, Texture, Container, Sprite, Point, Text } from 'pixi.js';
 import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
-import { Observable, last } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Position, getIndexFromChild, getShipsOccupiedPositions, getTrueClient, raycastPoint } from './FunctionsAndInterfaces';
 import { HitMarker, Marker, MissMarker } from './Marker';
 import { Captain, BlackbeardCaptain, CaptainNemoCaptain, CaptainNoahStormbreakerCaptain, CaptainLeoHawkCaptain } from './Captain';
@@ -31,6 +31,8 @@ export class MainScene extends Container {
     private attackButton: Button
     private revealButton: Button
     private $attackEvaluationRequester: Subject<{"positions": Position[], "type": AbilityType}> = new Subject<{"positions": Position[], "type": AbilityType}>()
+    private abilityPointsText: Text
+    private revealedShipsText: Text
 
     constructor(app: Application, captainString: string) {
         super()
@@ -223,6 +225,36 @@ export class MainScene extends Container {
         this.attackButton.position.x = this.app.renderer.screen.width - 225
         this.attackButton.position.y = this.app.renderer.screen.bottom / 2 + 50
         this.app.stage.addChild(this.attackButton)
+
+        /////////////////
+        // UI ELEMENTS //
+        /////////////////
+
+        this.abilityPointsText = new Text("Ability Points: 0", {
+            fontFamily: "Arial",
+            fontSize: 30,
+            fill: 0xFFFFFF,
+            align: 'center'
+        })
+        this.abilityPointsText.resolution = 2
+        this.abilityPointsText.anchor.set(0.5)
+        this.abilityPointsText.position.x = this.app.renderer.screen.width - 150
+        this.abilityPointsText.position.y = 50
+        this.app.stage.addChild(this.abilityPointsText)
+        
+        this.revealedShipsText = new Text("", {
+            fontFamily: "Arial",
+            fontSize: 30,
+            fill: 0xFFFFFF,
+            align: 'center',
+            wordWrap: true,
+            wordWrapWidth: 400
+        })
+        this.revealedShipsText.resolution = 2
+        this.revealedShipsText.anchor.set(0.5)
+        this.revealedShipsText.position.x = this.app.renderer.screen.width - 235
+        this.revealedShipsText.position.y = this.app.renderer.screen.bottom / 2 + 150
+        this.app.stage.addChild(this.revealedShipsText)
 
     }
 
@@ -417,6 +449,7 @@ export class MainScene extends Container {
                     this.attackBoardMarkers)
                 this.disableCaptainButtons()
                 this.captain.abilityPoints = Math.max(this.captain.abilityPoints - this.activeAbility!.abilityCost, 0)
+                this.updateAbilityText()
                 this.$attackEvaluationRequester.next({positions: targetTiles, type: this.activeAbility!.abilityType})
                 this.removeCaptainAbilityListeners()
             } 
@@ -461,7 +494,7 @@ export class MainScene extends Container {
         this.attackButton.removeCallback()
     }
 
-    public incrementCaptainAbilityPoints() { this.captain.abilityPoints++ }
+    public incrementCaptainAbilityPoints() { this.captain.abilityPoints++; this.updateAbilityText() }
 
     public getAttackEvaluationRequester() { return this.$attackEvaluationRequester }
 
@@ -488,5 +521,10 @@ export class MainScene extends Container {
         this.attackBoardShips.push({"ship": shadowShip, "anchorPosition": shadowShip.position.clone()})
         gsap.to(shadowShip, {alpha: 0.5, animationDuration: 1})
     }
+
+    public updateAbilityText(value?: number) { this.abilityPointsText.text = `Ability Points: ${(value) ? value : this.captain.abilityPoints}` }
+
+    public updateRevealedShipsText(value: number) { this.revealedShipsText.text = `Number of tiles accupied by ships: ${value}` }
+    public resetRevealedShipsText() { this.revealedShipsText.text = "" }
 
 }

@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 import { SocketService } from 'src/app/services/socket.service';
 import { UserCrudService } from 'src/app/services/userCrud.service';
+import { Captain, BlackbeardCaptain, CaptainNemoCaptain, CaptainNoahStormbreakerCaptain, CaptainLeoHawkCaptain } from '../game/logic/Captain';
 
 @Component({
     selector: 'app-home',
@@ -14,7 +15,17 @@ import { UserCrudService } from 'src/app/services/userCrud.service';
 })
 export class HomeComponent {
 
-    public spinSpinner: boolean = false
+    blackbeard: Captain = new BlackbeardCaptain(0)
+    blackbeardImgPath: string = "assets/pirate_captain.png"
+    captainNemo: Captain = new CaptainNemoCaptain(0)
+    captainNemoImgPath: string = "assets/submarine_captain.png"
+    captainNoahStormbreaker: Captain = new CaptainNoahStormbreakerCaptain(0)
+    captainNoahStormbreakerImgPath: string = "assets/battleship_captain.png"
+    captainLeoHawk: Captain = new CaptainLeoHawkCaptain(0)
+    captainLeoHawkImgPath: string = "assets/carrier_captain.png"
+
+    spinSpinner: boolean = false
+    showCaptainsState: boolean = false
 
     @ViewChild("mmButton") mmButton!: MatButton
 
@@ -28,13 +39,18 @@ export class HomeComponent {
         socketService.$roomHash.pipe(first()).subscribe(_ => {
             this.spinSpinner = false
             this.snackbarService.createCheck("Match Found")
-                .afterDismissed().subscribe(_ => {
-                    if (location.pathname == "/home") this.router.navigateByUrl("/game")
-                })
+                .afterDismissed().subscribe(_ => this.router.navigateByUrl("/game", {state: {data: {captain: this.choosenCaptainKey}}}))
         })
     }
 
-    async startMatchmaking() {
+    showCaptains() {
+        this.showCaptainsState = true
+    }
+
+    private choosenCaptainKey!: string
+    async startMatchmaking(captainKey: string) {
+        this.showCaptainsState = false
+        this.choosenCaptainKey = captainKey
         this.spinSpinner = true
         this.mmButton.disabled = true
         this.snackbarService.createCheck("Looking for match")

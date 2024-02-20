@@ -12,7 +12,7 @@ function getRoomHash(socket: Socket) {
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://192.168.0.135:4200",
+        origin: "http://192.168.0.132:4200",
         methods: ["GET", "POST"]
     }
 });
@@ -80,14 +80,34 @@ io.on("connection", (socket) => {
             io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack", position)
         }
     })
-    
-    // On post for attack results
-    socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean) => {
+
+    // On request for reveal results
+    socket.on("evaluate-reveal", (position) => {
         const roomHash = getRoomHash(socket)
         if (matches.get(roomHash)!.player1 == socket) {
-            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack-result", hit, allShipDestroyed)
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-reveal", position)
         } else {
-            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack-result", hit, allShipDestroyed)
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-reveal", position)
+        }
+    })
+    
+    // On post for attack results
+    socket.on("evaluate-attack-result", (hit: boolean, allShipDestroyed: boolean, position: any, sunkenShipId: number, sunkenShipPosition: any, sunkenShipRotation: number, sunkenShipAnchor: any) => {
+        const roomHash = getRoomHash(socket)
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-attack-result", hit, allShipDestroyed, position, sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor)
+        } else {
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-attack-result", hit, allShipDestroyed, position, sunkenShipId, sunkenShipPosition, sunkenShipRotation, sunkenShipAnchor)
+        }
+    })
+
+    // On post for reveal results
+    socket.on("evaluate-reveal-result", (hit: boolean, position: any) => {
+        const roomHash = getRoomHash(socket)
+        if (matches.get(roomHash)!.player1 == socket) {
+            io.to(matches.get(roomHash)!.player2.id).emit("evaluate-reveal-result", hit, position)
+        } else {
+            io.to(matches.get(roomHash)!.player1.id).emit("evaluate-reveal-result", hit, position)
         }
     })
 

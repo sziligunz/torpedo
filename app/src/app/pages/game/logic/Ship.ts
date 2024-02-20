@@ -6,6 +6,8 @@ import { ShipPlacementObserver } from './MainScene';
 
 export class Ship extends Sprite {
 
+    public readonly ID: number;
+
     private app: Application
     private imageSize: Size
     private imgaeScale: number
@@ -65,6 +67,7 @@ export class Ship extends Sprite {
     }
 
     constructor(
+        id: number,
         app: Application,
         myShipsBoard: ShipBoard,
         imageSize: Size,
@@ -75,6 +78,7 @@ export class Ship extends Sprite {
         animationDuration: number = 0.2
     ) {
         super(imageTexture)
+        this.ID = id
         this.app = app
         this.imageSize = imageSize
         this.imgaeScale = imgaeScale
@@ -131,7 +135,7 @@ export class Ship extends Sprite {
         if (this.allShips == null) return false
         let res = true
         this.allShips.forEach((_, ship) => {
-            if (this != ship && isIntersecting(this, ship, this.app)) {
+            if (this != ship && isIntersecting(this, ship)) {
                 gsap.to(this, { angle: this.angleBeforeDragging, duration: this.animationDuration})
                 gsap.to(this.position, { x: this.positionBeforeDragging.x, y: this.positionBeforeDragging.y, duration: this.animationDuration})
                 res = false;

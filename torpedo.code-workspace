@@ -12,6 +12,7 @@
 	],
 	"settings": {
 		"editor.tabSize": 4,
-		"editor.detectIndentation": false
+        "editor.detectIndentation": false,
+        "compile-hero.disable-compile-files-on-did-save-code": true
 	}
 }

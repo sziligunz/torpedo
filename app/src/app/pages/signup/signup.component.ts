@@ -4,6 +4,7 @@ import { MatButton } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { User } from 'src/app/models/User';
+import { UserStatistics } from 'src/app/models/UserStatistics';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserCrudService } from 'src/app/services/userCrud.service';
 import { SnackbarComponent } from 'src/app/shared/SnackbarComponent';
@@ -45,7 +46,7 @@ export class SignupComponent {
         this.firebaseService.signupUser(formData.email, formData.password1)
             .then(user => {
                 if (user) {
-                    const u = new User(user.uid, formData.email!)
+                    const u = new User(user.uid, formData.email!, new UserStatistics(0,0,0,0,0,0,0,0,0))
                     this.userCrud.createUser(u)
                     const ref = this.snackbarService.openFromComponent(SnackbarComponent, { duration: 5000, data: ["Successfully signed up!", "check"] })
                     ref.afterDismissed().subscribe(_ => {

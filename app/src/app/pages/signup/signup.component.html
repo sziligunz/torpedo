@@ -1,12 +1,17 @@
 <div class="flex flex-col items-center justify-center mt-12 mb-12">
   <h1 class="mb-12 text-center">Sign up to use the implemented features!</h1>
   <form [formGroup]="signupGroup" (ngSubmit)="signup(signupButton)"
-    class="flex flex-col items-center justify-start gap-2">
-    <mat-form-field color="accent">
-      <mat-label>Email address</mat-label>
-      <input formControlName="email" matInput type="email" placeholder="example@gmail.com" required>
-      <mat-icon matSuffix>email</mat-icon>
-    </mat-form-field>
+  class="flex flex-col items-center justify-start gap-2">
+  <mat-form-field color="accent">
+    <mat-label>Username</mat-label>
+    <input formControlName="username" matInput type="text" placeholder="TonkaT1" required>
+    <mat-icon matSuffix>person</mat-icon>
+  </mat-form-field>
+  <mat-form-field color="accent">
+    <mat-label>Email address</mat-label>
+    <input formControlName="email" matInput type="email" placeholder="example@gmail.com" required>
+    <mat-icon matSuffix>email</mat-icon>
+  </mat-form-field>
     <mat-form-field color="accent">
       <mat-label>Password</mat-label>
       <input formControlName="password1" matInput type="password" placeholder="123456" required>

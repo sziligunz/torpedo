@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { User } from 'src/app/models/User';
 import { AuthService } from 'src/app/services/auth.service';
@@ -10,10 +10,12 @@ import { UserCrudService } from 'src/app/services/userCrud.service';
     templateUrl: './leaderboards.component.html',
     styleUrls: ['./leaderboards.component.css']
 })
-export class LeaderboardsComponent implements OnInit, AfterViewInit {
+export class LeaderboardsComponent implements AfterViewInit {
 
     @ViewChild("playerPaginator") playerPaginator!: MatPaginator
     playerData!: MatTableDataSource<User>
+    paginatorLength: number = 0
+    paginatorIndex: number = 0
 
     constructor(
         public authService: AuthService,
@@ -25,18 +27,19 @@ export class LeaderboardsComponent implements OnInit, AfterViewInit {
         this.playerPaginator.page.subscribe(() => this.getUsers())
     }
 
-    ngOnInit(): void {
-    }
-
+    private first = true
     getUsers() {
         const pageIndex = this.playerPaginator.pageIndex
         const pageSize = this.playerPaginator.pageSize
-        this.userCrudService.getGlobalRankingUsers("numberOfWins", pageIndex*pageSize, pageSize)
-            .then(data => {
+        const res = this.userCrudService.getGlobalRankingUsers("userStatistics.numberOfWins", pageIndex*pageSize, pageSize)
+        res.length.then(length => {
+            res.data.then(data => {
                 this.playerData = new MatTableDataSource(data)
-                this.playerData.paginator = this.playerPaginator
-                console.log(data)
+                this.paginatorLength = length
+                this.paginatorIndex = pageIndex
+                if (this.first) { this.playerData.paginator = this.playerPaginator; this.first = false }
             })
+        })
     }
 
 }

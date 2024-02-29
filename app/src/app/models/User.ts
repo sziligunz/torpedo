@@ -1,17 +1,8 @@
 import { UserStatistics } from "./UserStatistics"
 
-export class User {
+export interface User {
     id: string
     email: string
+    username: string
     userStatistics: UserStatistics
-
-    constructor(
-        id: string,
-        email: string,
-        userStatistics: UserStatistics
-    ) {
-        this.id = id
-        this.email = email
-        this.userStatistics = userStatistics
-    }
 }

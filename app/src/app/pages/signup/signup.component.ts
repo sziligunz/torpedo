@@ -17,6 +17,7 @@ import { SnackbarComponent } from 'src/app/shared/SnackbarComponent';
 export class SignupComponent {
 
     signupGroup = new FormGroup({
+        username: new FormControl('', Validators.compose([Validators.required])),
         email: new FormControl('', Validators.compose([Validators.email, Validators.required])),
         password1: new FormControl('', Validators.compose([Validators.required, Validators.minLength(6)])),
         password2: new FormControl('', Validators.compose([Validators.required, Validators.minLength(6)]))
@@ -33,7 +34,7 @@ export class SignupComponent {
     signup(button: MatButton) {
         button.disabled = true
         const formData = this.signupGroup.getRawValue()
-        if (!formData.email || !formData.password1 || !formData.password2) {
+        if (!formData.username || !formData.email || !formData.password1 || !formData.password2) {
             this.snackbarService.openFromComponent(SnackbarComponent, { duration: 5000, data: ["Every field must be filled out!", "close"] })
             button.disabled = false
             return
@@ -46,7 +47,23 @@ export class SignupComponent {
         this.firebaseService.signupUser(formData.email, formData.password1)
             .then(user => {
                 if (user) {
-                    const u = new User(user.uid, formData.email!, new UserStatistics(0,0,0,0,0,0,0,0,0))
+                    const emptyStats: UserStatistics = {
+                        numberOfTurnsPlayed: 0,
+                        numberOfWins: 0,
+                        numberOfLosses: 0,
+                        numberOfShipsDestroyed: 0,
+                        numberOfHits: 0,
+                        numberOfMisses: 0,
+                        numberOfRevealsUsed: 0,
+                        numberOfAttacksUsed: 0,
+                        biggestHitStreak: 0
+                    }
+                    const u: User = {
+                        id: user.uid,
+                        email: formData.email!,
+                        username: formData.username!,
+                        userStatistics: emptyStats
+                    }
                     this.userCrud.createUser(u)
                     const ref = this.snackbarService.openFromComponent(SnackbarComponent, { duration: 5000, data: ["Successfully signed up!", "check"] })
                     ref.afterDismissed().subscribe(_ => {

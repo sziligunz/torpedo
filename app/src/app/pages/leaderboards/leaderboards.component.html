@@ -4,12 +4,30 @@
             <mat-icon class="mr-2">public</mat-icon>
             Global ranking
         </ng-template>
+        <!-- Paginator with mat-table -->
+        <div *ngIf="!authService.userLoggedIn" class="flex flex-col items-center" style="height: calc(100vh - 66px * 2);">
+            <mat-table [dataSource]="playerData">
+                <ng-container matColumnDef="numberOfWins">
+                    <mat-header-cell *matHeaderCellDef class="justify-center">Wins</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfWins}}</mat-cell>
+                </ng-container>
+                <mat-header-row *matHeaderRowDef="['numberOfWins']"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: ['numberOfWins']"></mat-row>
+            </mat-table>
+            <mat-paginator #playerPaginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+        </div>
     </mat-tab>
     <mat-tab label="Personal statistics">
         <ng-template mat-tab-label>
             <mat-icon class="mr-2">person</mat-icon>
             Personal statistics
         </ng-template>
-        
+        <!-- Gridlike personal stats -->
+        <div *ngIf="!authService.userLoggedIn" class="flex flex-col items-center justify-center" style="height: calc(100vh - 66px * 2);">
+            <h1 class="text-center mb-20">You have to sign to view your personal statistics!</h1>
+        </div>
+        <div *ngIf="authService.userLoggedIn" class="flex flex-col items-center justify-center" style="height: calc(100vh - 66px * 2);">
+            
+        </div>
     </mat-tab>
 </mat-tab-group>

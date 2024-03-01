@@ -15,6 +15,10 @@
                     <mat-header-cell *matHeaderCellDef class="justify-center">Username</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.username}}</mat-cell>
                 </ng-container>
+                <ng-container matColumnDef="turns">
+                    <mat-header-cell *matHeaderCellDef class="justify-center">Turns played</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfTurnsPlayed}}</mat-cell>
+                </ng-container>
                 <ng-container matColumnDef="wins">
                     <mat-header-cell *matHeaderCellDef class="justify-center">Wins</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfWins}}</mat-cell>
@@ -47,8 +51,8 @@
                     <mat-header-cell *matHeaderCellDef class="justify-center text-center">Longest Hit Streak</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
-                <mat-header-row *matHeaderRowDef="['position', 'username', 'wins', 'losses', 'shipsDestroyed', 'hits', 'misses', 'reveals', 'attacks', 'hitstreak']"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: ['position', 'username', 'wins', 'losses', 'shipsDestroyed', 'hits', 'misses', 'reveals', 'attacks', 'hitstreak']"></mat-row>
+                <mat-header-row *matHeaderRowDef="['position', 'username', 'turns', 'wins', 'losses', 'shipsDestroyed', 'hits', 'misses', 'reveals', 'attacks', 'hitstreak']"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: ['position', 'username', 'turns', 'wins', 'losses', 'shipsDestroyed', 'hits', 'misses', 'reveals', 'attacks', 'hitstreak']"></mat-row>
             </mat-table>
             <mat-paginator [length]="paginatorLength" [pageIndex]="paginatorIndex" #playerPaginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
         </div>
@@ -63,7 +67,18 @@
             <h1 class="text-center mb-20">You have to sign to view your personal statistics!</h1>
         </div>
         <div *ngIf="authService.userLoggedIn" class="flex flex-col items-center justify-center" style="height: calc(100vh - 66px * 2);">
-            
+            <div class="mb-12"><h1 class="text-center"><strong>{{user?.username}}</strong></h1></div>
+            <div class="grid grid-rows-3 grid-cols-3 gap-4 justify-center items-center">
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Turns Played: {{user?.userStatistics?.numberOfTurnsPlayed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Wins: {{user?.userStatistics?.numberOfWins}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Losses: {{user?.userStatistics?.numberOfLosses}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Ships Destroyed: {{user?.userStatistics?.numberOfShipsDestroyed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Hits: {{user?.userStatistics?.numberOfHits}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Misses: {{user?.userStatistics?.numberOfMisses}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Reveals Used: {{user?.userStatistics?.numberOfRevealsUsed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Attacks Used: {{user?.userStatistics?.numberOfAttacksUsed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Longest Hit Streak: {{user?.userStatistics?.biggestHitStreak}}</p>
+            </div>
         </div>
     </mat-tab>
 </mat-tab-group>

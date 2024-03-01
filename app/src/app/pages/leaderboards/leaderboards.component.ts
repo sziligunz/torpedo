@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { User } from 'src/app/models/User';
@@ -16,11 +16,23 @@ export class LeaderboardsComponent implements AfterViewInit {
     playerData!: MatTableDataSource<User>
     paginatorLength: number = 0
     paginatorIndex: number = 0
+    user: User | undefined
 
     constructor(
         public authService: AuthService,
         private userCrudService: UserCrudService
-    ) {}
+    ) {
+        this.authService.getCurrentUser().then(userId => {
+            this.userCrudService.getLoggedInUser(userId).then(user => {
+                if (user) {
+                    const buff = user
+                    buff!.email = ''
+                    buff!.id = ''
+                    this.user = buff
+                }
+            })
+        })
+    }
 
     ngAfterViewInit(): void {
         this.getUsers()

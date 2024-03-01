@@ -7,6 +7,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
 import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatSort, MatSortModule } from "@angular/material/sort";
 
 @NgModule({
     declarations: [
@@ -18,7 +19,8 @@ import { MatPaginatorModule } from "@angular/material/paginator";
         MatTabsModule,
         MatIconModule,
         MatTableModule,
-        MatPaginatorModule
+        MatPaginatorModule,
+        MatSortModule
     ]
 })
 export class LeaderboardsModule { }

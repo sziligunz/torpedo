@@ -8,47 +8,47 @@
         <div class="flex flex-col items-center" style="height: calc(100vh - 66px * 2);">
             <mat-table [dataSource]="playerData" matSort (matSortChange)="sortPressed($event)">
                 <ng-container matColumnDef="position">
-                    <mat-header-cell *matHeaderCellDef class="justify-center">Position</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef class="justify-center text-center select-none">Position</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.id}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="username">
-                    <mat-header-cell *matHeaderCellDef class="justify-center">Username</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef class="justify-center text-center select-none">Username</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.username}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfTurnsPlayed">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center">Turns played</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Turns played</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfTurnsPlayed}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfWins">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center">Wins</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Wins</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfWins}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfLosses">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center">Losses</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Losses</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfShipsDestroyed">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center">Ships Destroyed</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Ships Destroyed</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfHits">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center">Hits</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Hits</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfMisses">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center">Misses</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Misses</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfRevealsUsed">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center">Reveals Used</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Reveals Used</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="numberOfAttacksUsed">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center">Attacks Used</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Attacks Used</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <ng-container matColumnDef="biggestHitStreak">
-                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center">Longest Hit Streak</mat-header-cell>
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none">Longest Hit Streak</mat-header-cell>
                     <mat-cell *matCellDef="let e" class="justify-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
                 </ng-container>
                 <mat-header-row *matHeaderRowDef="['position', 'username', 'numberOfTurnsPlayed', 'numberOfWins', 'numberOfLosses', 'numberOfShipsDestroyed', 'numberOfHits', 'numberOfMisses', 'numberOfRevealsUsed', 'numberOfAttacksUsed', 'biggestHitStreak']"></mat-header-row>

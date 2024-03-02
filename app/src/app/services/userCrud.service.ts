@@ -31,11 +31,11 @@ export class UserCrudService {
         this.firestore.collection<User>(this.USER_PATH).doc(userId)
     }
 
-    getGlobalRankingUsers(sortBy: string, direction: ("asc" | "desc"), startAt: number, length: number) {
+    getGlobalRankingUsers(sortBy: string, direction: ("asc" | "desc" | ""), startAt: number, length: number) {
         const collLength = firstValueFrom(this.firestore
             .collection<User>(this.USER_PATH).valueChanges().pipe(map(x => x.length)))
         const data = firstValueFrom(this.firestore
-            .collection<User>(this.USER_PATH, x => x.orderBy(sortBy, direction))
+            .collection<User>(this.USER_PATH, x => (direction != "") ? x.orderBy(sortBy, direction as ("asc" | "desc")) : x.orderBy(sortBy))
             .valueChanges()
             .pipe(map(x => {x.forEach((y, i) =>{
                 y.email = ""

@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
+import { MatSort, MatSortable, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { User } from 'src/app/models/User';
 import { AuthService } from 'src/app/services/auth.service';
@@ -20,13 +20,12 @@ export class LeaderboardsComponent implements AfterViewInit {
     user: User | undefined
 
     private currentSortBy: string = "numberOfWins"
-    private currentDirection: ("asc" | "desc") = "desc"
+    private currentDirection: ("asc" | "desc" | "") = "desc"
     @ViewChild(MatSort) playerSorter!: MatSort
 
     constructor(
         public authService: AuthService,
-        private userCrudService: UserCrudService,
-        private cdr: ChangeDetectorRef
+        private userCrudService: UserCrudService
     ) {
         this.authService.getCurrentUser().then(userId => {
             this.userCrudService.getLoggedInUser(userId).then(user => {
@@ -41,7 +40,11 @@ export class LeaderboardsComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.getUsers()
+        new Promise(resolve => resolve(undefined)).then(() => {
+            this.playerSorter.active = "numberOfWins"
+            this.playerSorter.direction = "desc"
+            this.playerSorter.sortChange.emit({active: "numberOfWins", direction: "desc"})
+        })
         this.playerPaginator.page.subscribe(() => this.getUsers())
     }
 
@@ -65,7 +68,7 @@ export class LeaderboardsComponent implements AfterViewInit {
 
     sortPressed(event: Sort) {
         this.currentSortBy = event.active
-        this.currentDirection = event.direction as ("asc" | "desc")
+        this.currentDirection = event.direction as ("asc" | "desc" | "")
         this.getUsers()
     }
 

@@ -204,13 +204,15 @@ export class GameComponent implements AfterViewInit, OnInit {
 
     private async gameWon() {
         this.matchesUserStatistics.numberOfWins++
-        console.log("YOU HAVE WON THE GAME")
-        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics).then(
+            () => console.log("YOU HAVE WON THE GAME")
+        )
     }
     
     private async gameLost() {
         this.matchesUserStatistics.numberOfLosses++
-        console.log("YOU HAVE LOST THE GAME")
-        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics).then(
+            () => console.log("YOU HAVE LOST THE GAME")
+        )
     }
 }

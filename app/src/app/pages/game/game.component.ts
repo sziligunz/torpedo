@@ -19,7 +19,17 @@ export class GameComponent implements AfterViewInit, OnInit {
 
     private app!: Application
     private captain!: string
-    private matchesUserStatistics: UserStatistics = new UserStatistics(0,0,0,0,0,0,0,0,0)
+    private matchesUserStatistics: UserStatistics = {
+        numberOfTurnsPlayed: 0,
+        numberOfWins: 0,
+        numberOfLosses: 0,
+        numberOfShipsDestroyed: 0,
+        numberOfHits: 0,
+        numberOfMisses: 0,
+        numberOfRevealsUsed: 0,
+        numberOfAttacksUsed: 0,
+        biggestHitStreak: 0
+    }
 
     @ViewChild("appContainer") appContainer!: ElementRef;
 
@@ -43,6 +53,11 @@ export class GameComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
+        window.addEventListener("beforeunload", e => {
+            const confirmationMessage = "Refresh"
+            e.preventDefault()
+            e.returnValue = confirmationMessage
+        })
         const lastState = this.router.lastSuccessfulNavigation?.extras.state;
         if (lastState && lastState['data']) this.captain = lastState['data']['captain']
     }
@@ -189,13 +204,15 @@ export class GameComponent implements AfterViewInit, OnInit {
 
     private async gameWon() {
         this.matchesUserStatistics.numberOfWins++
-        console.log("YOU HAVE WON THE GAME")
-        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics).then(
+            () => console.log("YOU HAVE WON THE GAME")
+        )
     }
     
     private async gameLost() {
         this.matchesUserStatistics.numberOfLosses++
-        console.log("YOU HAVE LOST THE GAME")
-        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics).then(
+            () => console.log("YOU HAVE LOST THE GAME")
+        )
     }
 }

@@ -27,6 +27,12 @@ export class HomeComponent {
     spinSpinner: boolean = false
     showCaptainsState: boolean = false
 
+    unloadPreventer = (e: any) => {
+        const confirmationMessage = "Refresh"
+        e.preventDefault()
+        e.returnValue = confirmationMessage
+    }
+
     @ViewChild("mmButton") mmButton!: MatButton
 
     constructor(
@@ -49,6 +55,7 @@ export class HomeComponent {
 
     private choosenCaptainKey!: string
     async startMatchmaking(captainKey: string) {
+        window.addEventListener("beforeunload", this.unloadPreventer)
         this.showCaptainsState = false
         this.choosenCaptainKey = captainKey
         this.spinSpinner = true

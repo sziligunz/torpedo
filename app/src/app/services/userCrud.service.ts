@@ -3,13 +3,15 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../models/User';
 import { asObject } from '../shared/GlobalFunctions';
 import { UserStatistics } from '../models/UserStatistics';
+import { firstValueFrom, map } from 'rxjs';
+import { increment } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
 })
 export class UserCrudService {
 
-    private USER_PATH = 'User'
+    private readonly USER_PATH = 'User'
 
     constructor(private firestore: AngularFirestore) { }
 
@@ -18,6 +20,7 @@ export class UserCrudService {
     }
 
     async getLoggedInUser(userid: string): Promise<User | undefined> {
+        if (userid == "") return new Promise(resolve => resolve(undefined))
         return new Promise(resolve => {
             this.firestore.collection<User>(this.USER_PATH).doc(userid).get().subscribe(
                 user => { resolve(user.data()) }
@@ -26,7 +29,30 @@ export class UserCrudService {
     }
 
     updateUserStatistics(userId: string, newStats: UserStatistics) {
-        this.firestore.collection<User>(this.USER_PATH).doc(userId)
+        return this.firestore.collection(this.USER_PATH).doc(userId).update({
+            "userStatistics.numberOfTurnsPlayed": increment(newStats.numberOfTurnsPlayed),
+            "userStatistics.numberOfWins": increment(newStats.numberOfWins),
+            "userStatistics.numberOfLosses": increment(newStats.numberOfLosses),
+            "userStatistics.numberOfShipsDestroyed": increment(newStats.numberOfShipsDestroyed),
+            "userStatistics.numberOfHits": increment(newStats.numberOfHits),
+            "userStatistics.numberOfMisses": increment(newStats.numberOfMisses),
+            "userStatistics.numberOfRevealsUsed": increment(newStats.numberOfRevealsUsed),
+            "userStatistics.numberOfAttacksUsed": increment(newStats.numberOfAttacksUsed),
+            "userStatistics.biggestHitStreak": increment(newStats.biggestHitStreak),
+        })
+    }
+
+    getGlobalRankingUsers(sortBy: string, direction: ("asc" | "desc" | ""), startAt: number, length: number) {
+        const collLength = firstValueFrom(this.firestore
+            .collection<User>(this.USER_PATH).valueChanges().pipe(map(x => x.length)))
+        const data = firstValueFrom(this.firestore
+            .collection<User>(this.USER_PATH, x => (direction != "") ? x.orderBy(sortBy, direction as ("asc" | "desc")) : x.orderBy(sortBy))
+            .valueChanges()
+            .pipe(map(x => {x.forEach((y, i) =>{
+                y.email = ""
+                y.id = (++i).toString()
+            }); return x.filter((x, j) => j >= startAt && j < startAt+length); })))
+        return {length: collLength, data: data}
     }
 
 }

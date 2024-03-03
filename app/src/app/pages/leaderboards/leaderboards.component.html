@@ -1,1 +1,84 @@
-<p>leaderboards works!</p>
+<mat-tab-group>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <mat-icon class="mr-2">public</mat-icon>
+            Global ranking
+        </ng-template>
+        <!-- Paginator with mat-table -->
+        <div class="flex flex-col items-center" style="height: calc(100vh - 66px * 2);">
+            <mat-table [dataSource]="playerData" matSort (matSortChange)="sortPressed($event)">
+                <ng-container matColumnDef="position">
+                    <mat-header-cell *matHeaderCellDef class="justify-center text-center select-none">Position</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.id}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="username">
+                    <mat-header-cell *matHeaderCellDef class="justify-center text-center select-none">Username</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.username}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfTurnsPlayed">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Turns played</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfTurnsPlayed}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfWins">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Wins</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfWins}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfLosses">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Losses</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfLosses}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfShipsDestroyed">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Ships Destroyed</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfShipsDestroyed}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfHits">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Hits</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfHits}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfMisses">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Misses</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfMisses}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfRevealsUsed">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Reveals Used</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfRevealsUsed}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="numberOfAttacksUsed">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Attacks Used</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.numberOfAttacksUsed}}</mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="biggestHitStreak">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-center text-center select-none" start="desc">Longest Hit Streak</mat-header-cell>
+                    <mat-cell *matCellDef="let e" class="justify-center text-center">{{e.userStatistics.biggestHitStreak}}</mat-cell>
+                </ng-container>
+                <mat-header-row *matHeaderRowDef="['position', 'username', 'numberOfTurnsPlayed', 'numberOfWins', 'numberOfLosses', 'numberOfShipsDestroyed', 'numberOfHits', 'numberOfMisses', 'numberOfRevealsUsed', 'numberOfAttacksUsed', 'biggestHitStreak']"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: ['position', 'username', 'numberOfTurnsPlayed', 'numberOfWins', 'numberOfLosses', 'numberOfShipsDestroyed', 'numberOfHits', 'numberOfMisses', 'numberOfRevealsUsed', 'numberOfAttacksUsed', 'biggestHitStreak']"></mat-row>
+            </mat-table>
+            <mat-paginator [length]="paginatorLength" [pageIndex]="paginatorIndex" #playerPaginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+        </div>
+    </mat-tab>
+    <mat-tab label="Personal statistics">
+        <ng-template mat-tab-label>
+            <mat-icon class="mr-2">person</mat-icon>
+            Personal statistics
+        </ng-template>
+        <!-- Gridlike personal stats -->
+        <div *ngIf="!authService.userLoggedIn" class="flex flex-col items-center justify-center" style="height: calc(100vh - 66px * 2);">
+            <h1 class="text-center mb-20">You have to sign to view your personal statistics!</h1>
+        </div>
+        <div *ngIf="authService.userLoggedIn" class="flex flex-col items-center justify-center" style="height: calc(100vh - 66px * 2);">
+            <div class="mb-12"><h1 class="text-center"><strong>{{user?.username}}</strong></h1></div>
+            <div class="grid grid-rows-3 grid-cols-3 gap-4 justify-center items-center">
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Turns Played: {{user?.userStatistics?.numberOfTurnsPlayed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Wins: {{user?.userStatistics?.numberOfWins}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Losses: {{user?.userStatistics?.numberOfLosses}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Ships Destroyed: {{user?.userStatistics?.numberOfShipsDestroyed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Hits: {{user?.userStatistics?.numberOfHits}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Misses: {{user?.userStatistics?.numberOfMisses}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Reveals Used: {{user?.userStatistics?.numberOfRevealsUsed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Attacks Used: {{user?.userStatistics?.numberOfAttacksUsed}}</p>
+                <p class="border-solid border-4 border-black rounded-xl uppercase p-4 text-center">Longest Hit Streak: {{user?.userStatistics?.biggestHitStreak}}</p>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>

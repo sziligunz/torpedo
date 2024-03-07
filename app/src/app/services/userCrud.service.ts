@@ -3,7 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { User } from '../models/User';
 import { asObject } from '../shared/GlobalFunctions';
 import { UserStatistics } from '../models/UserStatistics';
-import { firstValueFrom, map } from 'rxjs';
+import { firstValueFrom, map, max } from 'rxjs';
 import { increment } from '@angular/fire/firestore';
 
 @Injectable({
@@ -29,16 +29,21 @@ export class UserCrudService {
     }
 
     updateUserStatistics(userId: string, newStats: UserStatistics) {
-        return this.firestore.collection(this.USER_PATH).doc(userId).update({
-            "userStatistics.numberOfTurnsPlayed": increment(newStats.numberOfTurnsPlayed),
-            "userStatistics.numberOfWins": increment(newStats.numberOfWins),
-            "userStatistics.numberOfLosses": increment(newStats.numberOfLosses),
-            "userStatistics.numberOfShipsDestroyed": increment(newStats.numberOfShipsDestroyed),
-            "userStatistics.numberOfHits": increment(newStats.numberOfHits),
-            "userStatistics.numberOfMisses": increment(newStats.numberOfMisses),
-            "userStatistics.numberOfRevealsUsed": increment(newStats.numberOfRevealsUsed),
-            "userStatistics.numberOfAttacksUsed": increment(newStats.numberOfAttacksUsed),
-            "userStatistics.biggestHitStreak": increment(newStats.biggestHitStreak),
+        return new Promise(resolve => {
+            firstValueFrom(this.firestore.collection<User>(this.USER_PATH).doc(userId).valueChanges()).then(user => {
+                let newHitStreak = Math.max(user!.userStatistics.biggestHitStreak, newStats.biggestHitStreak)
+                this.firestore.collection(this.USER_PATH).doc(userId).update({
+                    "userStatistics.numberOfTurnsPlayed": increment(newStats.numberOfTurnsPlayed),
+                    "userStatistics.numberOfWins": increment(newStats.numberOfWins),
+                    "userStatistics.numberOfLosses": increment(newStats.numberOfLosses),
+                    "userStatistics.numberOfShipsDestroyed": increment(newStats.numberOfShipsDestroyed),
+                    "userStatistics.numberOfHits": increment(newStats.numberOfHits),
+                    "userStatistics.numberOfMisses": increment(newStats.numberOfMisses),
+                    "userStatistics.numberOfRevealsUsed": increment(newStats.numberOfRevealsUsed),
+                    "userStatistics.numberOfAttacksUsed": increment(newStats.numberOfAttacksUsed),
+                    "userStatistics.biggestHitStreak": newHitStreak
+                }).then(() => resolve)
+            })
         })
     }
 

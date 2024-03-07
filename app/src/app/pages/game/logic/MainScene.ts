@@ -1,4 +1,4 @@
-import { Application, Texture, Container, Sprite, Point, Text } from 'pixi.js';
+import { Application, Texture, Container, Sprite, Point, Text, Rectangle, Graphics } from 'pixi.js';
 import { Ship } from './Ship';
 import { AttackBoard, ShipBoard } from './Board';
 import { Subject } from 'rxjs/internal/Subject';
@@ -386,9 +386,9 @@ export class MainScene extends Container {
     }
 
     private destoryShip(target: Sprite) {
-        gsap.to(target, {alpha: 0.5, animationDuration: 1})
+        gsap.to(target, {alpha: 0.5, duration: 1})
         for (const pair of this.myShipsBoardMarkers) {
-            if (pair[1] == target) gsap.to(pair[0], {alpha: 0.5, animationDuration: 1})
+            if (pair[1] == target) gsap.to(pair[0], {alpha: 0.5, duration: 1})
         }
     }
 
@@ -519,12 +519,37 @@ export class MainScene extends Container {
         shadowShip.alpha = 0
         this.app.stage.addChild(shadowShip)
         this.attackBoardShips.push({"ship": shadowShip, "anchorPosition": shadowShip.position.clone()})
-        gsap.to(shadowShip, {alpha: 0.5, animationDuration: 1})
+        gsap.to(shadowShip, {alpha: 0.5, duration: 1})
     }
 
     public updateAbilityText(value?: number) { this.abilityPointsText.text = `Ability Points: ${(value) ? value : this.captain.abilityPoints}` }
 
     public updateRevealedShipsText(value: number) { this.revealedShipsText.text = `Number of tiles accupied by ships: ${value}` }
     public resetRevealedShipsText() { this.revealedShipsText.text = "" }
+
+    public showWinScreen(msg: string = "WON") {
+        const bg = new Graphics()
+        bg.beginFill(0x000000)
+        bg.drawRoundedRect(0, 0, this.app.renderer.screen.right / 4, this.app.renderer.screen.bottom / 4, 30)
+        bg.endFill()
+        bg.x = this.app.renderer.screen.right * (3/8)
+        bg.y = this.app.renderer.screen.bottom * (3/8)
+        const winText = new Text(msg, {
+            fontFamily: "Arial",
+            fontSize: 40,
+            fill: 0xFFFFFF,
+            align: 'center'
+        })
+        winText.resolution = 2
+        winText.anchor.set(0.5)
+        winText.position.x = this.app.renderer.screen.right / 2
+        winText.position.y = this.app.renderer.screen.bottom / 2
+        this.app.stage.addChild(bg)
+        this.app.stage.addChild(winText)
+    }
+    
+    public showLooseScreen() {
+        this.showWinScreen("LOST")
+    }
 
 }

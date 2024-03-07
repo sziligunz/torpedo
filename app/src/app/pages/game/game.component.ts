@@ -1,7 +1,7 @@
 import { Component, ElementRef, AfterViewInit, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
-import { Application } from 'pixi.js';
+import { Application, Color } from 'pixi.js';
 import { MainScene } from './logic/MainScene';
 import { Subscription } from 'rxjs';
 import { Position } from './logic/FunctionsAndInterfaces';
@@ -9,6 +9,7 @@ import { AbilityType } from './logic/Ability';
 import { UserCrudService } from 'src/app/services/userCrud.service';
 import { UserStatistics } from 'src/app/models/UserStatistics';
 import { AuthService } from 'src/app/services/auth.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
     selector: 'app-game',
@@ -37,7 +38,8 @@ export class GameComponent implements AfterViewInit, OnInit {
         private router: Router,
         private socketService: SocketService,
         private authService: AuthService,
-        private userCrudService: UserCrudService
+        private userCrudService: UserCrudService,
+        private snackBarService: SnackbarService
     ) {
         if (this.socketService.roomHash === null) {
             this.router.navigateByUrl("/home")
@@ -74,6 +76,7 @@ export class GameComponent implements AfterViewInit, OnInit {
         this.app = new Application({
             width: document.body.clientWidth,
             height: document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight,
+            backgroundColor: "0x6B9EFF",
             antialias: true
         })
         this.appContainer.nativeElement.appendChild(this.app.view)
@@ -106,14 +109,6 @@ export class GameComponent implements AfterViewInit, OnInit {
                 }
             }
         })
-        // window.addEventListener('resize', (e: any) => {
-        //     this.app.renderer.resize(
-        //         document.body.clientWidth,
-        //         document.body.clientHeight - document.getElementsByClassName("mat-toolbar")[0].clientHeight
-        //         )
-        //     this.mainScene.resize()
-        //     this.app.render()
-        // })
         this.socketService.socket.emit('loaded')
     }
 
@@ -204,15 +199,15 @@ export class GameComponent implements AfterViewInit, OnInit {
 
     private async gameWon() {
         this.matchesUserStatistics.numberOfWins++
-        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics).then(
-            () => console.log("YOU HAVE WON THE GAME")
-        )
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
+            .then(() => { this.mainScene.showWinScreen(); this.snackBarService.createCheck("Leave game").afterDismissed().subscribe(() => { if(location.pathname == "/game") this.router.navigateByUrl("/home")} )})
+            .catch(() => { this.mainScene.showWinScreen(); this.snackBarService.createCheck("Leave game").afterDismissed().subscribe(() => { if(location.pathname == "/game") this.router.navigateByUrl("/home")} )})
     }
-    
+
     private async gameLost() {
         this.matchesUserStatistics.numberOfLosses++
-        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics).then(
-            () => console.log("YOU HAVE LOST THE GAME")
-        )
+        this.userCrudService.updateUserStatistics(await this.authService.getCurrentUser(), this.matchesUserStatistics)
+            .then(() => { this.mainScene.showLooseScreen(); this.snackBarService.createCheck("Leave game").afterDismissed().subscribe(() => { if(location.pathname == "/game") this.router.navigateByUrl("/home")} )})
+            .catch(() => { this.mainScene.showLooseScreen(); this.snackBarService.createCheck("Leave game").afterDismissed().subscribe(() => { if(location.pathname == "/game") this.router.navigateByUrl("/home")} )})
     }
 }

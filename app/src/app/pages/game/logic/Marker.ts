@@ -21,16 +21,16 @@ export class Marker extends Sprite {
     public hideMarker(timeOffset: number = 0, upDownMovement: boolean = false) {
         this.previousPosition = this.position.clone()
         if (!upDownMovement)
-            return gsap.to(this.position, {x: -this.app.renderer.width, delay: timeOffset, animationDuration: 1})
+            return gsap.to(this.position, {x: -this.app.renderer.width, delay: timeOffset, duration: 1})
         else
-            return gsap.to(this.position, {y: -this.app.renderer.height, delay: timeOffset, animationDuration: 1})
+            return gsap.to(this.position, {y: -this.app.renderer.height, delay: timeOffset, duration: 1})
     }
     
     public showMarker(timeOffset: number = 0, upDownMovement: boolean = false) {
         if (!upDownMovement)
-            return gsap.to(this.position, {x: this.previousPosition.x, delay: timeOffset, animationDuration: 1})
+            return gsap.to(this.position, {x: this.previousPosition.x, delay: timeOffset, duration: 1})
         else
-            return gsap.to(this.position, {y: this.previousPosition.y, delay: timeOffset, animationDuration: 1})
+            return gsap.to(this.position, {y: this.previousPosition.y, delay: timeOffset, duration: 1})
     }
 
 }

@@ -42,7 +42,7 @@ export class UserCrudService {
                     "userStatistics.numberOfRevealsUsed": increment(newStats.numberOfRevealsUsed),
                     "userStatistics.numberOfAttacksUsed": increment(newStats.numberOfAttacksUsed),
                     "userStatistics.biggestHitStreak": newHitStreak
-                }).then(() => resolve)
+                }).then(() => resolve(undefined)) // value is needed in resolve otherwise listeners will not be notified
             })
         })
     }

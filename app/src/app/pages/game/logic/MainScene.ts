@@ -86,9 +86,10 @@ export class MainScene extends Container {
             this.ships,
             3)
         this.ships.set(ship1, null)
-        ship1.x = this.app.renderer.screen.right / 2
+        ship1.x = this.myShipsBoard.getBounds().right + 50
         app.stage.addChild(ship1)
         ship1.centerVertically()
+        ship1.position.y -= 100
 
         ////////////////
         // SHIP-2 1X3 //
@@ -104,9 +105,10 @@ export class MainScene extends Container {
             this.ships,
             3)
         this.ships.set(ship2, null)
-        ship2.x = this.app.renderer.screen.right / 2
+        ship2.x = this.myShipsBoard.getBounds().right + 150
         app.stage.addChild(ship2)
         ship2.centerVertically()
+        ship2.position.y -= 100
 
         ////////////////
         // SHIP-3 1X2 //
@@ -122,10 +124,11 @@ export class MainScene extends Container {
             this.ships,
             2)
         this.ships.set(ship3, null)
-        ship3.x = this.app.renderer.screen.right / 2
+        ship3.x = this.myShipsBoard.getBounds().right + 250
         ship3.anchor.y = 0.25
         app.stage.addChild(ship3)
         ship3.centerVertically()
+        ship3.position.y -= 130
 
         //////////////////////
         // SHIP-4 1X2 & 1X3 //
@@ -141,7 +144,7 @@ export class MainScene extends Container {
             this.ships,
             5)
         this.ships.set(ship4, null)
-        ship4.x = this.app.renderer.screen.right / 2
+        ship4.x = this.myShipsBoard.getBounds().right + 100
         const ship4SideShip = new Ship(
             -1,
             app,
@@ -158,6 +161,8 @@ export class MainScene extends Container {
         ship4SideShip.position.set(-this.myShipsBoard.getTileSize()*2, -this.myShipsBoard.getTileSize()*3)
         app.stage.addChild(ship4)
         ship4.centerVertically()
+        ship4.position.y += 100
+        ship4.angle = 90
 
         ////////////////
         // SHIP-5 1X3 //
@@ -173,9 +178,10 @@ export class MainScene extends Container {
             this.ships,
             3)
         this.ships.set(ship5, null)
-        ship5.x = this.app.renderer.screen.right / 2
+        ship5.x = this.myShipsBoard.getBounds().right + 350
         app.stage.addChild(ship5)
         ship5.centerVertically()
+        ship5.position.y -= 100
 
         ////////////////////////////
         // SHIP PLACEMENT TRIGGER //

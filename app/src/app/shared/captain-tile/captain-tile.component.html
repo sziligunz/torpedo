@@ -1,3 +1,12 @@
-<div class="flex flex-col justify-center align-middle w-fit bg-cyan-100 rounded-xl border-4 border-black">
-    <img [src]="captainImagePath" style="width: 20vh;" class="p-4">
+<div class="flex flex-col justify-center align-middle">
+    <h2 class="font-bold text-center mt-6">{{captain.captainName}}</h2>
+    <div class="flex flex-row">
+        <div class="flex flex-col justify-center"><img [src]="captainImagePath" style="max-width: 20vh; max-height: 20vh;" class="p-4"></div>
+        <div class="pr-4">
+            <h3 class="font-bold mt-2 mb-0">{{captain.attackAbility.abilityName}} - {{captain.attackAbility.abilityCost}} AP</h3>
+            <p class="mt-0 mb-2">{{captain.attackAbility.abilityDescription}}</p>
+            <h3 class="font-bold mt-2 mb-0">{{captain.revealAbility.abilityName}} - {{captain.revealAbility.abilityCost}} AP</h3>
+            <p class="mt-0 mb-4">{{captain.revealAbility.abilityDescription}}</p>
+        </div>
+    </div>
 </div>

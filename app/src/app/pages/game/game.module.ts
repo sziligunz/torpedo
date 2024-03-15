@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { GameRoutingModule } from './game-routing.module';
 import { GameComponent } from './game.component';
+import { MatButtonModule } from '@angular/material/button';
 
 
 @NgModule({
@@ -11,7 +12,8 @@ import { GameComponent } from './game.component';
     ],
     imports: [
         CommonModule,
-        GameRoutingModule
+        GameRoutingModule,
+        MatButtonModule
     ]
 })
 export class GameModule { }

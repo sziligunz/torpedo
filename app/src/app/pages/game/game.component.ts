@@ -10,6 +10,7 @@ import { UserCrudService } from 'src/app/services/userCrud.service';
 import { UserStatistics } from 'src/app/models/UserStatistics';
 import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-game',
@@ -33,6 +34,7 @@ export class GameComponent implements AfterViewInit, OnInit {
     }
 
     @ViewChild("appContainer") appContainer!: ElementRef;
+    @ViewChild("readyButton") readyButton!: MatButton;
 
     constructor(
         private router: Router,
@@ -117,6 +119,11 @@ export class GameComponent implements AfterViewInit, OnInit {
     }
 
     ready() {
+        this.readyButton.disabled = false
+    }
+    
+    readyButtonPressed() {
+        this.readyButton._elementRef.nativeElement.style.display = "none"
         this.socketService.socket.emit('ready')
         this.readyHandler.unsubscribe()
         this.mainScene.makeShipsNonDraggable()

@@ -28,9 +28,8 @@ export class HomeComponent {
     showCaptainsState: boolean = false
 
     unloadPreventer = (e: any) => {
-        const confirmationMessage = "Refresh"
         e.preventDefault()
-        e.returnValue = confirmationMessage
+        e.returnValue = "Refresh"
     }
 
     @ViewChild("mmButton") mmButton!: MatButton

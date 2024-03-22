@@ -39,15 +39,7 @@ export class AppComponent {
             );
     }
 
-    home() {
-        //TODO: this is commented out becouse in nonproduction mode
-        //      the logout doesn't work when page is refreshed
-        //      (user get's automatically logged in)
-        // if (location.pathname == '/')
-        //   location.reload()
-        // else
-        this.router.navigateByUrl('/home').then(() => location.reload())
-    }
+    home() { this.router.navigateByUrl('/home') }
 
     logout() {
         this.firebase.logout().then(_ => this.router.navigateByUrl('/'))

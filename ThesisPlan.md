@@ -1,6 +1,6 @@
 # Vázlat
 
-1. cím: többjátékos realtime angular torpedó ilyesmi
+1. cím: Valósidejű többjátékos torpedó játék megvalósítása Angular-ban
 
 2. feladatleírás, tartalmi összefoglaló
 
@@ -18,7 +18,7 @@
    - chat gpt, dalle, copilot
    - gsap
 
-5. játék terve (hierarchiam, képtervek, progress, tervminta, angular template, use-case, szekvencia (about socket))
+5. játék terve (hierarchia, képtervek, progress, tervminta, angular template, use-case, szekvencia (about socket))
 
 6. implementáció (fejlesztéséi folyamat, lépések) ez a leghosszab fejezet -> alfejezetekre bontani
 

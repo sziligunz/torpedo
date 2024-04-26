@@ -86,7 +86,7 @@ export class MainScene extends Container {
             this.ships,
             3)
         this.ships.set(ship1, null)
-        ship1.x = this.myShipsBoard.getBounds().right + 50
+        ship1.x = this.myShipsBoard.getBounds().right + 100
         app.stage.addChild(ship1)
         ship1.centerVertically()
         ship1.position.y -= 100
@@ -105,7 +105,7 @@ export class MainScene extends Container {
             this.ships,
             3)
         this.ships.set(ship2, null)
-        ship2.x = this.myShipsBoard.getBounds().right + 150
+        ship2.x = this.myShipsBoard.getBounds().right + 200
         app.stage.addChild(ship2)
         ship2.centerVertically()
         ship2.position.y -= 100
@@ -124,7 +124,7 @@ export class MainScene extends Container {
             this.ships,
             2)
         this.ships.set(ship3, null)
-        ship3.x = this.myShipsBoard.getBounds().right + 250
+        ship3.x = this.myShipsBoard.getBounds().right + 300
         ship3.anchor.y = 0.25
         app.stage.addChild(ship3)
         ship3.centerVertically()
@@ -144,7 +144,7 @@ export class MainScene extends Container {
             this.ships,
             5)
         this.ships.set(ship4, null)
-        ship4.x = this.myShipsBoard.getBounds().right + 100
+        ship4.x = this.myShipsBoard.getBounds().right + 150
         const ship4SideShip = new Ship(
             -1,
             app,
@@ -178,7 +178,7 @@ export class MainScene extends Container {
             this.ships,
             3)
         this.ships.set(ship5, null)
-        ship5.x = this.myShipsBoard.getBounds().right + 350
+        ship5.x = this.myShipsBoard.getBounds().right + 400
         app.stage.addChild(ship5)
         ship5.centerVertically()
         ship5.position.y -= 100

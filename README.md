@@ -44,7 +44,7 @@ Angular webapp that implements all the gamelogic and front-end.
 **MARCH:**
 
 - [X] Finalization
-- [ ] Start work on thesis
+- [X] Start work on thesis
 
 **APRIL:**
 

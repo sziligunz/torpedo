@@ -12,7 +12,7 @@ function getRoomHash(socket: Socket) {
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://192.168.0.132:4200",
+        origin: "http://192.168.0.133:4200",
         methods: ["GET", "POST"]
     }
 });

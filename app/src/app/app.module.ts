@@ -30,9 +30,6 @@ import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 
 // SOCKET.IO
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
-import { UserCrudService } from './services/userCrud.service';
-import { AuthService } from './services/auth.service';
-import { SocketService } from './services/socket.service';
 
 @NgModule({
     declarations: [
@@ -63,9 +60,6 @@ import { SocketService } from './services/socket.service';
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-        UserCrudService,
-        AuthService,
-        SocketService
     ],
     bootstrap: [AppComponent]
 })

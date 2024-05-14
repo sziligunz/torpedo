@@ -4,7 +4,7 @@ import { User } from '../models/User';
 import { asObject } from '../shared/GlobalFunctions';
 import { UserStatistics } from '../models/UserStatistics';
 import { firstValueFrom, map, max } from 'rxjs';
-import { increment } from '@angular/fire/firestore';
+import { increment, limit } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -53,11 +53,14 @@ export class UserCrudService {
         const data = firstValueFrom(this.firestore
             .collection<User>(this.USER_PATH, x => (direction != "") ? x.orderBy(sortBy, direction as ("asc" | "desc")) : x.orderBy(sortBy))
             .valueChanges()
-            .pipe(map(x => {x.forEach((y, i) =>{
-                y.email = ""
-                y.id = (++i).toString()
-            }); return x.filter((x, j) => j >= startAt && j < startAt+length); })))
-        return {length: collLength, data: data}
+            .pipe(map(x => {
+                x.forEach((y, i) => {
+                    y.email = ""
+                    y.id = (++i).toString()
+                })
+                return x.filter((x, j) => j >= startAt && j < startAt + length)
+            })))
+        return { length: collLength, data: data }
     }
 
 }

@@ -15,7 +15,7 @@ const io = new Server(httpServer, {
         origin: "http://192.168.0.133:4200",
         methods: ["GET", "POST"]
     }
-});
+})
 
 // Vars
 const debug = false

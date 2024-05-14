@@ -27,15 +27,19 @@ export class LeaderboardsComponent implements AfterViewInit {
         public authService: AuthService,
         private userCrudService: UserCrudService
     ) {
-        this.authService.getCurrentUser().then(userId => {
-            this.userCrudService.getLoggedInUser(userId).then(user => {
-                if (user) {
-                    const buff = user
-                    buff!.email = ''
-                    buff!.id = ''
-                    this.user = buff
-                }
-            })
+        this.authService.getCurrentUserObservable().subscribe(user => {
+            if (user) {
+                this.authService.getCurrentUser().then(userId => {
+                    this.userCrudService.getLoggedInUser(userId).then(user => {
+                        if (user) {
+                            const buff = user
+                            buff!.email = ''
+                            buff!.id = ''
+                            this.user = buff
+                        }
+                    })
+                })
+            }
         })
     }
 
